@@ -106,13 +106,16 @@ def agent_fingerprint(program: VoiceProgram) -> str:
 
 def run(program: VoiceProgram, out: pathlib.Path, runtime: str = "pipecat", limit: int = 0,
         protocol: spec.Protocol = spec.PROTOCOL, on_call: Callable[[CallResult, int, int], None] | None = None,
-        testset: Testset | None = None, only: list[str] | None = None) -> dict[str, Any]:
+        testset: Testset | None = None, only: list[str] | None = None, shard: tuple[int, int] | None = None) -> dict[str, Any]:
     ts = testset or load(protocol.testset)
     calls = plan(ts, protocol)
     if only:
         calls = [c for c in calls if any(sub in call_key(c) for sub in only)]
     if limit:
         calls = calls[:limit]
+    if shard:  # k of n: every n-th call, so several processes can share one output directory
+        k, n = shard
+        calls = calls[k::n]
     out.mkdir(parents=True, exist_ok=True)
     (out / "calls").mkdir(exist_ok=True)
     rt = get_runtime(runtime)

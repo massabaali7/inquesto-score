@@ -274,7 +274,11 @@ def cmd_protocol(args) -> int:
             print(f"  {D}[{i}/{n}]{X} {res.scenario_id} {res.condition}/{res.group} {mark}  {ev}  {D}eta {eta / 60:.0f} min{X}", flush=True)
 
         only = [x for x in (args.only or "").split(",") if x]
-        rec = prun.run(program, out, runtime=args.runtime, limit=args.limit, on_call=on_call, only=only or None)
+        shard = None
+        if args.shard:
+            k, n = args.shard.split("/")
+            shard = (int(k), int(n))
+        rec = prun.run(program, out, runtime=args.runtime, limit=args.limit, on_call=on_call, only=only or None, shard=shard)
     v = rec["views"]
     print(f"\n{B}{rec['citation']}{X}")
     for k in ("behavior", "robustness", "identity", "fairness"):
@@ -355,6 +359,7 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--limit", type=int, default=0, metavar="N", help="only the first N calls of the population")
     pr.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="config override, e.g. model=qwen2.5:7b")
     pr.add_argument("--only", default="", metavar="SUBSTR[,SUBSTR]", help="only calls whose key contains one of these (smoke tests)")
+    pr.add_argument("--shard", default="", metavar="K/N", help="run every N-th call starting at K; shards may share --out")
     pr.set_defaults(func=cmd_protocol)
 
     ls = sub.add_parser("list", help="show available evaluators, testsets, runtimes")

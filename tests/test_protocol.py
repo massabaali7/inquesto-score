@@ -158,3 +158,13 @@ def test_conditions_change_the_signal_as_specified():
     snr = 20 * np.log10(np.sqrt(np.mean(x * x)) / np.sqrt(np.mean((bab - x) ** 2)))
     assert 9 < snr < 11, f"babble at 10 dB SNR, got {snr:.1f}"
     assert np.array_equal(apply_condition(speech, "clean", random.Random(0)), speech)
+
+
+def test_shards_partition_the_population(tmp_path):
+    from inquesto.cli import _load_program
+    from inquesto.protocol import run as prun
+    program = _load_program("examples/protocol_agent/agent.py")
+    for k in range(3):
+        prun.run(program, tmp_path / "o", runtime="mock", limit=10, shard=(k, 3))
+    assert len(list((tmp_path / "o" / "calls").glob("*.json"))) == 10
+    assert prun.score_dir(tmp_path / "o")["n"] == 10

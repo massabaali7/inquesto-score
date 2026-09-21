@@ -19,7 +19,13 @@ def load(run: pathlib.Path) -> dict:
 
 def label(rec: dict, run: pathlib.Path) -> str:
     cfg = rec.get("config") or {}
-    m = str(cfg.get("model", "?")).replace("qwen2.5:", "Qwen2.5-").replace("llama3.1:", "Llama-3.1-").replace("gemma2:", "Gemma-2-")
+    raw = str(cfg.get("model", "?"))
+    hosted = {"gpt-4.1-mini": "GPT-4.1-mini$^h$", "gpt-5.4-mini": "GPT-5.4-mini$^h$", "gemini/gemini-2.5-flash": "Gemini-2.5-Flash$^h$",
+              "us.anthropic.claude-haiku-4-5-20251001-v1:0": "Claude-Haiku-4.5$^h$", "us.anthropic.claude-sonnet-4-6": "Claude-Sonnet-4.6$^h$",
+              "us.meta.llama3-1-8b-instruct-v1:0": "Llama-3.1-8B$^h$"}
+    if raw in hosted:
+        return f"{hosted[raw]} / {cfg.get('endpointing_ms', '?')} ms"
+    m = raw.replace("qwen2.5:", "Qwen2.5-").replace("llama3.1:", "Llama-3.1-").replace("gemma2:", "Gemma-2-")
     m = m[:-1] + "B" if m.endswith("b") else m
     return f"{m} / {cfg.get('endpointing_ms', '?')} ms"
 
@@ -36,9 +42,10 @@ def main_table(recs: list[tuple[str, dict]]) -> str:
     for name, r in recs:
         v = r["views"]
         sev = r["failures_by_severity"]
+        au = r["audio_only"]
         rows.append(f"{name} & {fmt(r['score'])} & [{fmt(r['ci95'][0])}, {fmt(r['ci95'][1])}] & "
                     f"{fmt(v['behavior']['score'])} & {fmt(v['robustness']['score'])} & {fmt(v['identity']['score'])} & {fmt(v['fairness']['score'])} & "
-                    f"{sev['S3']}/{sev['S4']}/{sev['S5']}" + ROW_END)
+                    f"{sev['S3']}/{sev['S4']}/{sev['S5']} & {fmt(au['score_if_transcript_only'])} & {au['failed_only_on_audio_events']}" + ROW_END)
     return "\n".join(rows)
 
 
@@ -85,7 +92,7 @@ def main() -> int:
     recs.sort(key=lambda x: -(x[1]["score"] or 0))
     def tab(spec_: str, head: str, body: str) -> str:
         return f"\\begin{{tabular}}{{{spec_}}}\n\\toprule\n{head} \\\\\n\\midrule\n{body}\n\\bottomrule\n\\end{{tabular}}\n"
-    (ns.out / "main_table.tex").write_text(tab("@{}lcc cccc c@{}", "Agent (LLM / endpointing) & IS & 95\\,\\% CI & B & R & I & F & S3/4/5", main_table(recs)))
+    (ns.out / "main_table.tex").write_text(tab("@{}lcc cccc c cc@{}", "Agent (LLM / endpointing) & IS & 95\\,\\% CI & B & R & I & F & S3/4/5 & tx-only & audio-only", main_table(recs)))
     (ns.out / "ablation_table.tex").write_text(tab("@{}lcccc@{}", "Agent & IS (rate) & mean of views & geometric & min view", ablation_table(recs)))
     (ns.out / "audio_table.tex").write_text(tab("@{}lccc@{}", "Agent & IS & transcript-only & audio-only failures", audio_table(recs)))
     (ns.out / "fairness_table.tex").write_text(tab("@{}lcccc c@{}", "Agent & US-F & US-M & UK-F & UK-M & $\\Delta$ worst", fairness_table(recs)))
@@ -107,6 +114,40 @@ def main() -> int:
         by_cfg = {(str((r.get('config') or {}).get('model')), (r.get('config') or {}).get('endpointing_ms')): r["score"] for _, r in recs}
         for ep, name in ((400, "epfour"), (700, "epseven"), (1100, "epeleven")):
             macros.append(f"\\newcommand{{\\{name}}}{{{fmt(by_cfg.get(('qwen2.5:7b', ep)))}}}")
+        def find(model):
+            return next((r for _, r in recs if str((r.get("config") or {}).get("model")) == model), None)
+        ll, lh = find("llama3.1:8b"), find("us.meta.llama3-1-8b-instruct-v1:0")
+        macros.append(f"\\newcommand{{\\llamalocal}}{{{fmt(ll['score']) if ll else '--'}}}")
+        macros.append(f"\\newcommand{{\\llamahosted}}{{{fmt(lh['score']) if lh else '--'}}}")
+        macros.append(f"\\newcommand{{\\llamalocaltx}}{{{fmt(ll['audio_only']['score_if_transcript_only']) if ll else '--'}}}")
+        macros.append(f"\\newcommand{{\\llamahostedtx}}{{{fmt(lh['audio_only']['score_if_transcript_only']) if lh else '--'}}}")
+        ab = [r["aggregation_ablation"] for _, r in recs if r["aggregation_ablation"]["mean_of_views"] is not None]
+        if ab:
+            for key, name in (("mean_of_views", "aggmean"), ("geometric_mean_of_views", "agggeo"), ("min_view", "aggmin")):
+                macros.append(f"\\newcommand{{\\{name}delta}}{{{fmt(sum(x[key] - r['score'] for x, (_, r) in zip(ab, [(n, rr) for n, rr in recs if rr['aggregation_ablation']['mean_of_views'] is not None])) / len(ab), 1)}}}")
+        def lat(run: pathlib.Path):
+            import statistics
+            if not (run / "calls").exists():
+                return None, None
+            ttfb, resp = [], []
+            for f in (run / "calls").glob("*.json"):
+                d = json.loads(f.read_text())["conversation"]
+                ttfb += [t["llm_ttfb_ms"] for t in d["metadata"].get("turns_detail", [])]
+                resp += list(d["response_latencies_ms"])
+            return (statistics.median(ttfb) if ttfb else None, statistics.median(resp) if resp else None)
+        for tag, run in (("local", "llama8b-ep700"), ("hosted", "us-meta-llama3-1-8b-instruct-v1-0-ep700")):
+            t_, r_ = lat(pathlib.Path("runs") / run)
+            macros.append(f"\\newcommand{{\\ttfb{tag}}}{{{fmt(t_ / 1000, 2) if t_ else '--'}}}")
+            macros.append(f"\\newcommand{{\\lat{tag}}}{{{fmt(r_ / 1000, 1) if r_ else '--'}}}")
+        hk = find("us.anthropic.claude-haiku-4-5-20251001-v1:0")
+        macros.append(f"\\newcommand{{\\haikuis}}{{{fmt(hk['score']) if hk else '--'}}}")
+        macros.append(f"\\newcommand{{\\haikutx}}{{{fmt(hk['audio_only']['score_if_transcript_only']) if hk else '--'}}}")
+        besttx = max(recs, key=lambda x: x[1]["audio_only"]["score_if_transcript_only"] or 0) if recs else None
+        macros.append(f"\\newcommand{{\\besttxname}}{{{besttx[0] if besttx else '--'}}}")
+        macros.append(f"\\newcommand{{\\besttx}}{{{fmt(besttx[1]['audio_only']['score_if_transcript_only']) if besttx else '--'}}}")
+        macros.append(f"\\newcommand{{\\besttxis}}{{{fmt(besttx[1]['score']) if besttx else '--'}}}")
+        hosted = [r for _, r in recs if "$^h$" in _]
+        macros.append(f"\\newcommand{{\\nhosted}}{{{len(hosted)}}}")
         worst_gap = min((r["views"]["fairness"].get("delta_vs_reference") for _, r in recs if r["views"]["fairness"].get("delta_vs_reference") is not None), default=None)
         macros.append(f"\\newcommand{{\\worstgap}}{{{fmt(worst_gap, 1)}}}")
     (ns.out / "macros.tex").write_text("\n".join(macros) + "\n")

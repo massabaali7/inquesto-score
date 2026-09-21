@@ -196,6 +196,13 @@ class LocalRuntime:
         self._client = None
         self._supports_stream_usage = True
         self.tool_overrides: dict[str, str] = {}  # per-call tool results, e.g. verify_voice
+        # The agent under test may live behind a different endpoint (a hosted LLM) than the
+        # protocol's caller and judge, which stay on the pinned local models.
+        self.agent_base_url = _env("INQUESTO_AGENT_BASE_URL")
+        self.agent_api_key = _env("INQUESTO_AGENT_API_KEY")
+        self._agent_client = None
+        self._agent_supports_seed = True
+        self.last_agent_error: str | None = None
 
     # -- client -----------------------------------------------------------------
 
@@ -213,24 +220,41 @@ class LocalRuntime:
             ) from e
         return OpenAI(base_url=self.base_url, api_key=self.api_key)
 
+    def _get_agent_client(self):
+        if not self.agent_base_url:
+            return self._get_client()
+        if self._agent_client is None:
+            from openai import OpenAI
+
+            self._agent_client = OpenAI(base_url=self.agent_base_url, api_key=self.agent_api_key or "none",
+                                        max_retries=6, timeout=60.0)
+        return self._agent_client
+
     def _complete(
-        self, model: str, system: str, history: list[dict], temperature: float, seed: int
+        self, model: str, system: str, history: list[dict], temperature: float, seed: int,
+        role: str = "protocol",
     ) -> _Completion:
-        client = self._get_client()
+        client = self._get_agent_client() if role == "agent" else self._get_client()
         kwargs: dict[str, Any] = {
             "model": model,
             "messages": [{"role": "system", "content": system}, *history],
             "temperature": temperature,
-            "seed": seed,
             "max_tokens": self.max_tokens,
             "stream": True,
         }
+        if role != "agent" or self._agent_supports_seed:
+            kwargs["seed"] = seed
         if self._supports_stream_usage:
             kwargs["stream_options"] = {"include_usage": True}
         t0 = time.perf_counter()
         try:
             stream = client.chat.completions.create(**kwargs)
         except Exception as e:
+            # Some hosted endpoints reject `seed`; drop it for the agent and retry once.
+            if role == "agent" and self._agent_supports_seed and "seed" in str(e).lower():
+                self._agent_supports_seed = False
+                kwargs.pop("seed", None)
+                return self._complete(model, system, history, temperature, seed, role)
             # Some servers reject stream_options; retry once without it.
             if self._supports_stream_usage and "stream_options" in str(e):
                 self._supports_stream_usage = False
@@ -281,7 +305,13 @@ class LocalRuntime:
         for _ in range(MAX_TOOL_CALLS_PER_TURN + 1):
             window = agent_hist[-(2 * cfg.max_context_turns + 2 * MAX_TOOL_CALLS_PER_TURN):]
             before_ms = int((time.perf_counter() - t0) * 1000)
-            a = self._complete(cfg.model, agent_system, window, cfg.temperature, seed)
+            try:
+                a = self._complete(cfg.model, agent_system, window, cfg.temperature, seed, role="agent")
+            except Exception as e:  # noqa: BLE001 - a refused or failed request is a silent turn on a live call
+                self.last_agent_error = f"{type(e).__name__}: {str(e)[:200]}"
+                a = _Completion(text="", ttfb_ms=int((time.perf_counter() - t0) * 1000), tokens_in=0, tokens_out=0, tokens_estimated=True)
+                agent_hist.append({"role": "assistant", "content": ""})
+                break
             tokens_in += a.tokens_in
             tokens_out += a.tokens_out
             estimated |= a.tokens_estimated
