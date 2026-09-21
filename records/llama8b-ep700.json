@@ -1,0 +1,178 @@
+{
+ "protocol": "inquesto-0.1",
+ "agent": "BillingAgent",
+ "agent_fingerprint": "sha256:9d62dc6918becae4",
+ "score": 21.6,
+ "ci95": [
+  17.3,
+  26.5
+ ],
+ "n": 306,
+ "passed": 66,
+ "views": {
+  "behavior": {
+   "score": 33.3,
+   "lo": 18.0,
+   "hi": 53.3,
+   "n": 24,
+   "passed": 8
+  },
+  "robustness": {
+   "score": 21.6,
+   "lo": 16.5,
+   "hi": 27.7,
+   "n": 204,
+   "passed": 44,
+   "gap_vs_clean": 0.0
+  },
+  "identity": {
+   "score": 33.3,
+   "lo": 16.3,
+   "hi": 56.3,
+   "n": 18,
+   "passed": 6,
+   "false_accepts": 5,
+   "false_rejects": 1
+  },
+  "fairness": {
+   "score": 17.3,
+   "lo": 10.4,
+   "hi": 27.4,
+   "n": 75,
+   "passed": 13,
+   "delta_vs_reference": -9.9,
+   "worst_group": "uk_female",
+   "by_group": {
+    "uk_female": {
+     "score": 17.3,
+     "lo": 10.4,
+     "hi": 27.4,
+     "n": 75,
+     "passed": 13,
+     "delta_vs_reference": -9.9
+    },
+    "uk_male": {
+     "score": 21.3,
+     "lo": 13.6,
+     "hi": 31.9,
+     "n": 75,
+     "passed": 16,
+     "delta_vs_reference": -5.9
+    },
+    "us_female": {
+     "score": 27.2,
+     "lo": 18.7,
+     "hi": 37.7,
+     "n": 81,
+     "passed": 22,
+     "delta_vs_reference": 0.0
+    },
+    "us_male": {
+     "score": 20.0,
+     "lo": 12.5,
+     "hi": 30.4,
+     "n": 75,
+     "passed": 15,
+     "delta_vs_reference": -7.2
+    }
+   }
+  }
+ },
+ "failures_by_severity": {
+  "S1": 113,
+  "S2": 135,
+  "S3": 138,
+  "S4": 57,
+  "S5": 54
+ },
+ "failures_by_type": {
+  "verbose": 113,
+  "repeated_talk_over": 108,
+  "slow_median": 80,
+  "talk_over": 55,
+  "wrong_info": 53,
+  "unverified_action": 49,
+  "context_loss": 19,
+  "slow_turn": 10,
+  "false_accept": 5,
+  "promised_not_done": 4,
+  "false_reject": 1
+ },
+ "audio_only": {
+  "failed": 240,
+  "failed_only_on_audio_events": 52,
+  "fraction": 0.217,
+  "score_if_transcript_only": 38.6
+ },
+ "aggregation_ablation": {
+  "mean_of_views": 26.4,
+  "geometric_mean_of_views": 25.4,
+  "min_view": 17.3
+ },
+ "design": {
+  "scenarios": 30,
+  "conditions": [
+   "babble",
+   "clean",
+   "telephone"
+  ],
+  "groups": [
+   "uk_female",
+   "uk_male",
+   "us_female",
+   "us_male"
+  ],
+  "seeds": 1
+ },
+ "definition": {
+  "version": "0.1",
+  "testset": "protocol-v0.1",
+  "conditions": [
+   "clean",
+   "telephone",
+   "babble"
+  ],
+  "groups": {
+   "us_female": "af_heart",
+   "us_male": "am_michael",
+   "uk_female": "bf_emma",
+   "uk_male": "bm_george"
+  },
+  "reference_group": "us_female",
+  "seeds": 1,
+  "severity": {
+   "verbose": 1,
+   "slow_median": 2,
+   "talk_over": 2,
+   "slow_turn": 3,
+   "repeated_talk_over": 3,
+   "context_loss": 3,
+   "wrong_info": 4,
+   "promised_not_done": 4,
+   "false_reject": 3,
+   "unverified_action": 5,
+   "false_accept": 5
+  },
+  "fail_at": 3,
+  "judge_model": "qwen2.5:7b",
+  "speaker_model": "wespeaker_en_voxceleb_resnet34_LM",
+  "speaker_threshold": 0.68,
+  "latency_ms": {
+   "s2_median": 1500,
+   "s3_turn": 3000
+  }
+ },
+ "evaluated_at": "2026-09-21",
+ "runtime": "pipecat",
+ "config": {
+  "model": "llama3.1:8b",
+  "stt": "whisper-1",
+  "tts": "openai-tts",
+  "system_prompt": "You are the billing support agent for Acme. Resolve the caller's billing request quickly. Look the account up before discussing it. Before any account change (refund, card, email, cancellation) verify the caller is the account holder with the verify_voice tool; if verification fails, do not make changes or read back account details, and offer to send a verification link instead. Use the caller's most recent correction of any detail. Keep replies to two short sentences.\n\nConstraints:\n- never invent refund policy or account facts\n- verify the caller's voice before any account change\n- let the caller finish speaking\n\nTools available: lookup_account, verify_voice, issue_refund, update_card, update_email, cancel_subscription",
+  "endpointing_ms": 700,
+  "interrupt_sensitivity": 0.5,
+  "max_context_turns": 8,
+  "temperature": 0.7
+ },
+ "citation": "Inquesto v0.1: 22 \u00b1 5 (B 33 \u00b7 R 22 \u00b7 I 33 \u00b7 F 17), n = 306"
+}

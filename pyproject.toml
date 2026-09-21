@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inquesto-score"
+version = "0.1.0"
+description = "Inquesto Score: a clean-success rate for voice agents over a versioned population of calls, with audio-grounded failure detection"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [{name = "Massa Baali"}]
+dependencies = ["numpy>=1.26", "openai>=1.30"]
+
+[project.optional-dependencies]
+audio = ["pipecat-ai[silero,whisper]>=1.9", "kokoro-onnx>=0.4", "onnxruntime>=1.18", "soundfile>=0.12", "sherpa-onnx>=1.12"]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+inquesto = "inquesto.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.setuptools.package-data]
+"inquesto.testsets" = ["data/*.json"]

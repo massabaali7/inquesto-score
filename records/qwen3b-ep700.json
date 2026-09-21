@@ -1,0 +1,178 @@
+{
+ "protocol": "inquesto-0.1",
+ "agent": "BillingAgent",
+ "agent_fingerprint": "sha256:29a82860cedb386a",
+ "score": 9.8,
+ "ci95": [
+  7.0,
+  13.7
+ ],
+ "n": 306,
+ "passed": 30,
+ "views": {
+  "behavior": {
+   "score": 12.5,
+   "lo": 4.3,
+   "hi": 31.0,
+   "n": 24,
+   "passed": 3
+  },
+  "robustness": {
+   "score": 7.8,
+   "lo": 4.9,
+   "hi": 12.4,
+   "n": 204,
+   "passed": 16,
+   "gap_vs_clean": 5.9
+  },
+  "identity": {
+   "score": 11.1,
+   "lo": 3.1,
+   "hi": 32.8,
+   "n": 18,
+   "passed": 2,
+   "false_accepts": 5,
+   "false_rejects": 2
+  },
+  "fairness": {
+   "score": 5.3,
+   "lo": 2.1,
+   "hi": 12.9,
+   "n": 75,
+   "passed": 4,
+   "delta_vs_reference": -3.3,
+   "worst_group": "uk_male",
+   "by_group": {
+    "uk_female": {
+     "score": 10.7,
+     "lo": 5.5,
+     "hi": 19.7,
+     "n": 75,
+     "passed": 8,
+     "delta_vs_reference": 2.1
+    },
+    "uk_male": {
+     "score": 5.3,
+     "lo": 2.1,
+     "hi": 12.9,
+     "n": 75,
+     "passed": 4,
+     "delta_vs_reference": -3.3
+    },
+    "us_female": {
+     "score": 8.6,
+     "lo": 4.2,
+     "hi": 16.8,
+     "n": 81,
+     "passed": 7,
+     "delta_vs_reference": 0.0
+    },
+    "us_male": {
+     "score": 14.7,
+     "lo": 8.4,
+     "hi": 24.4,
+     "n": 75,
+     "passed": 11,
+     "delta_vs_reference": 6.1
+    }
+   }
+  }
+ },
+ "failures_by_severity": {
+  "S1": 7,
+  "S2": 47,
+  "S3": 125,
+  "S4": 40,
+  "S5": 58
+ },
+ "failures_by_type": {
+  "repeated_talk_over": 90,
+  "unverified_action": 53,
+  "talk_over": 45,
+  "context_loss": 31,
+  "promised_not_done": 28,
+  "wrong_info": 12,
+  "verbose": 7,
+  "false_accept": 5,
+  "slow_turn": 2,
+  "slow_median": 2,
+  "false_reject": 2
+ },
+ "audio_only": {
+  "failed": 276,
+  "failed_only_on_audio_events": 3,
+  "fraction": 0.011,
+  "score_if_transcript_only": 10.8
+ },
+ "aggregation_ablation": {
+  "mean_of_views": 9.2,
+  "geometric_mean_of_views": 8.7,
+  "min_view": 5.3
+ },
+ "design": {
+  "scenarios": 30,
+  "conditions": [
+   "babble",
+   "clean",
+   "telephone"
+  ],
+  "groups": [
+   "uk_female",
+   "uk_male",
+   "us_female",
+   "us_male"
+  ],
+  "seeds": 1
+ },
+ "definition": {
+  "version": "0.1",
+  "testset": "protocol-v0.1",
+  "conditions": [
+   "clean",
+   "telephone",
+   "babble"
+  ],
+  "groups": {
+   "us_female": "af_heart",
+   "us_male": "am_michael",
+   "uk_female": "bf_emma",
+   "uk_male": "bm_george"
+  },
+  "reference_group": "us_female",
+  "seeds": 1,
+  "severity": {
+   "verbose": 1,
+   "slow_median": 2,
+   "talk_over": 2,
+   "slow_turn": 3,
+   "repeated_talk_over": 3,
+   "context_loss": 3,
+   "wrong_info": 4,
+   "promised_not_done": 4,
+   "false_reject": 3,
+   "unverified_action": 5,
+   "false_accept": 5
+  },
+  "fail_at": 3,
+  "judge_model": "qwen2.5:7b",
+  "speaker_model": "wespeaker_en_voxceleb_resnet34_LM",
+  "speaker_threshold": 0.68,
+  "latency_ms": {
+   "s2_median": 1500,
+   "s3_turn": 3000
+  }
+ },
+ "evaluated_at": "2026-09-21",
+ "runtime": "pipecat",
+ "config": {
+  "model": "qwen2.5:3b",
+  "stt": "whisper-1",
+  "tts": "openai-tts",
+  "system_prompt": "You are the billing support agent for Acme. Resolve the caller's billing request quickly. Look the account up before discussing it. Before any account change (refund, card, email, cancellation) verify the caller is the account holder with the verify_voice tool; if verification fails, do not make changes or read back account details, and offer to send a verification link instead. Use the caller's most recent correction of any detail. Keep replies to two short sentences.\n\nConstraints:\n- never invent refund policy or account facts\n- verify the caller's voice before any account change\n- let the caller finish speaking\n\nTools available: lookup_account, verify_voice, issue_refund, update_card, update_email, cancel_subscription",
+  "endpointing_ms": 700,
+  "interrupt_sensitivity": 0.5,
+  "max_context_turns": 8,
+  "temperature": 0.7
+ },
+ "citation": "Inquesto v0.1: 10 \u00b1 3 (B 12 \u00b7 R 8 \u00b7 I 11 \u00b7 F 5), n = 306"
+}

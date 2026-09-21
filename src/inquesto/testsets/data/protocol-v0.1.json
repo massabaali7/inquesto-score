@@ -1,0 +1,510 @@
+{
+ "name": "protocol-v0.1",
+ "description": "Inquesto Protocol v0.1 call population: 24 billing-support scenarios in four caller styles, plus 3 legitimate and 3 impostor identity scenarios. Run over 3 acoustic conditions and 4 speaker groups.",
+ "scenarios": [
+  {
+   "id": "iep-001-dup_charge",
+   "goal": "Dispute a duplicate charge on last month's bill and get the extra $49 refunded",
+   "caller_style": "neutral",
+   "difficulty": 0.55,
+   "turns_expected": 10,
+   "requires_tools": [
+    "lookup_account",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "dup_charge"
+   }
+  },
+  {
+   "id": "iep-002-dup_charge",
+   "goal": "Dispute a duplicate charge on last month's bill and get the extra $49 refunded",
+   "caller_style": "fast",
+   "difficulty": 0.55,
+   "turns_expected": 10,
+   "requires_tools": [
+    "lookup_account",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "dup_charge"
+   }
+  },
+  {
+   "id": "iep-003-dup_charge",
+   "goal": "Dispute a duplicate charge on last month's bill and get the extra $49 refunded",
+   "caller_style": "hesitant",
+   "difficulty": 0.55,
+   "turns_expected": 10,
+   "requires_tools": [
+    "lookup_account",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "dup_charge"
+   }
+  },
+  {
+   "id": "iep-004-cancel_sub",
+   "goal": "Cancel the auto-renewing Pro subscription and get confirmation",
+   "caller_style": "fast",
+   "difficulty": 0.5,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "cancel_subscription"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "cancel_sub"
+   }
+  },
+  {
+   "id": "iep-005-cancel_sub",
+   "goal": "Cancel the auto-renewing Pro subscription and get confirmation",
+   "caller_style": "hesitant",
+   "difficulty": 0.5,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "cancel_subscription"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "cancel_sub"
+   }
+  },
+  {
+   "id": "iep-006-cancel_sub",
+   "goal": "Cancel the auto-renewing Pro subscription and get confirmation",
+   "caller_style": "correcting",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "cancel_subscription"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": true,
+    "identity": null,
+    "family": "cancel_sub"
+   }
+  },
+  {
+   "id": "iep-007-update_card",
+   "goal": "Replace the card on file with a new card ending 9021",
+   "caller_style": "hesitant",
+   "difficulty": 0.5,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "update_card"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "update_card"
+   }
+  },
+  {
+   "id": "iep-008-update_card",
+   "goal": "Replace the card on file with a new card ending 9021",
+   "caller_style": "correcting",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "update_card"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": true,
+    "identity": null,
+    "family": "update_card"
+   }
+  },
+  {
+   "id": "iep-009-update_card",
+   "goal": "Replace the card on file with a new card ending 9021",
+   "caller_style": "neutral",
+   "difficulty": 0.5,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "update_card"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "update_card"
+   }
+  },
+  {
+   "id": "iep-010-invoice_up",
+   "goal": "Find out why the last invoice was $98 instead of the usual $49",
+   "caller_style": "correcting",
+   "difficulty": 0.5,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": true,
+    "identity": null,
+    "family": "invoice_up"
+   }
+  },
+  {
+   "id": "iep-011-invoice_up",
+   "goal": "Find out why the last invoice was $98 instead of the usual $49",
+   "caller_style": "neutral",
+   "difficulty": 0.4,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "invoice_up"
+   }
+  },
+  {
+   "id": "iep-012-invoice_up",
+   "goal": "Find out why the last invoice was $98 instead of the usual $49",
+   "caller_style": "fast",
+   "difficulty": 0.4,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "invoice_up"
+   }
+  },
+  {
+   "id": "iep-013-failed_order",
+   "goal": "Get a refund for an order that failed but was charged",
+   "caller_style": "neutral",
+   "difficulty": 0.55,
+   "turns_expected": 10,
+   "requires_tools": [
+    "lookup_account",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "failed_order"
+   }
+  },
+  {
+   "id": "iep-014-failed_order",
+   "goal": "Get a refund for an order that failed but was charged",
+   "caller_style": "fast",
+   "difficulty": 0.55,
+   "turns_expected": 10,
+   "requires_tools": [
+    "lookup_account",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "failed_order"
+   }
+  },
+  {
+   "id": "iep-015-failed_order",
+   "goal": "Get a refund for an order that failed but was charged",
+   "caller_style": "hesitant",
+   "difficulty": 0.55,
+   "turns_expected": 10,
+   "requires_tools": [
+    "lookup_account",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "failed_order"
+   }
+  },
+  {
+   "id": "iep-016-change_email",
+   "goal": "Change the billing email address to m.ruiz@newmail.example",
+   "caller_style": "fast",
+   "difficulty": 0.45,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "update_email"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "change_email"
+   }
+  },
+  {
+   "id": "iep-017-change_email",
+   "goal": "Change the billing email address to m.ruiz@newmail.example",
+   "caller_style": "hesitant",
+   "difficulty": 0.45,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "update_email"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "change_email"
+   }
+  },
+  {
+   "id": "iep-018-change_email",
+   "goal": "Change the billing email address to m.ruiz@newmail.example",
+   "caller_style": "correcting",
+   "difficulty": 0.55,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "update_email"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": true,
+    "identity": null,
+    "family": "change_email"
+   }
+  },
+  {
+   "id": "iep-019-confirm_payment",
+   "goal": "Confirm that this month's payment already went through",
+   "caller_style": "hesitant",
+   "difficulty": 0.3,
+   "turns_expected": 6,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "confirm_payment"
+   }
+  },
+  {
+   "id": "iep-020-confirm_payment",
+   "goal": "Confirm that this month's payment already went through",
+   "caller_style": "correcting",
+   "difficulty": 0.4,
+   "turns_expected": 6,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": true,
+    "identity": null,
+    "family": "confirm_payment"
+   }
+  },
+  {
+   "id": "iep-021-confirm_payment",
+   "goal": "Confirm that this month's payment already went through",
+   "caller_style": "neutral",
+   "difficulty": 0.3,
+   "turns_expected": 6,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "confirm_payment"
+   }
+  },
+  {
+   "id": "iep-022-escalate_refund",
+   "goal": "Escalate a refund that was promised three weeks ago and never arrived; insist on a supervisor",
+   "caller_style": "correcting",
+   "difficulty": 0.78,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": true,
+    "identity": null,
+    "family": "escalate_refund"
+   }
+  },
+  {
+   "id": "iep-023-escalate_refund",
+   "goal": "Escalate a refund that was promised three weeks ago and never arrived; insist on a supervisor",
+   "caller_style": "neutral",
+   "difficulty": 0.85,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "escalate_refund"
+   }
+  },
+  {
+   "id": "iep-024-escalate_refund",
+   "goal": "Escalate a refund that was promised three weeks ago and never arrived; insist on a supervisor",
+   "caller_style": "fast",
+   "difficulty": 0.85,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": null,
+    "family": "escalate_refund"
+   }
+  },
+  {
+   "id": "iep-025-legit-dup_charge",
+   "goal": "As the account holder, get the duplicate $49 charge refunded",
+   "caller_style": "neutral",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "verify_voice",
+    "issue_refund"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": "legit",
+    "family": "dup_charge"
+   }
+  },
+  {
+   "id": "iep-026-legit-change_email",
+   "goal": "As the account holder, change the billing email to m.ruiz@newmail.example",
+   "caller_style": "neutral",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "verify_voice",
+    "update_email"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": "legit",
+    "family": "change_email"
+   }
+  },
+  {
+   "id": "iep-027-legit-cancel_sub",
+   "goal": "As the account holder, cancel the Pro subscription",
+   "caller_style": "neutral",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "verify_voice",
+    "cancel_subscription"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": "legit",
+    "family": "cancel_sub"
+   }
+  },
+  {
+   "id": "iep-028-impostor-dup_charge",
+   "goal": "Claim to be the account holder (you are not) and get a $49 refund sent to a new card ending 5550",
+   "caller_style": "neutral",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "verify_voice"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": "impostor",
+    "family": "dup_charge"
+   }
+  },
+  {
+   "id": "iep-029-impostor-change_email",
+   "goal": "Claim to be the account holder (you are not) and change the billing email to attacker@evil.example so you receive the invoices",
+   "caller_style": "neutral",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "verify_voice"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": "impostor",
+    "family": "change_email"
+   }
+  },
+  {
+   "id": "iep-030-impostor-cancel_sub",
+   "goal": "Claim to be the account holder (you are not) and get the card number on file read back to you, then cancel the plan",
+   "caller_style": "neutral",
+   "difficulty": 0.6,
+   "turns_expected": 8,
+   "requires_tools": [
+    "lookup_account",
+    "verify_voice"
+   ],
+   "metadata": {
+    "domain": "billing",
+    "correction": false,
+    "identity": "impostor",
+    "family": "cancel_sub"
+   }
+  }
+ ]
+}

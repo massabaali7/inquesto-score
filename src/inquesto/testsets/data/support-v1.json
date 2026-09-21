@@ -1,0 +1,534 @@
+{
+  "name": "support-v1",
+  "description": "40 billing-support calls across five caller styles. The v0.1 reference benchmark.",
+  "scenarios": [
+    {
+      "id": "support-001",
+      "goal": "Dispute a duplicate charge on last month's bill",
+      "caller_style": "neutral",
+      "difficulty": 0.52,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-002",
+      "goal": "Cancel an auto-renewing subscription",
+      "caller_style": "fast",
+      "difficulty": 0.76,
+      "turns_expected": 8,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-003",
+      "goal": "Update the card on file",
+      "caller_style": "hesitant",
+      "difficulty": 0.52,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-004",
+      "goal": "Ask why the invoice went up",
+      "caller_style": "accented",
+      "difficulty": 0.36,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-005",
+      "goal": "Request a refund for a failed order",
+      "caller_style": "noisy",
+      "difficulty": 0.54,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-006",
+      "goal": "Split one invoice across two departments",
+      "caller_style": "neutral",
+      "difficulty": 0.73,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-007",
+      "goal": "Reinstate a suspended account",
+      "caller_style": "fast",
+      "difficulty": 0.52,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-008",
+      "goal": "Confirm a payment that already cleared",
+      "caller_style": "hesitant",
+      "difficulty": 0.3,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-009",
+      "goal": "Change the billing email address",
+      "caller_style": "accented",
+      "difficulty": 0.61,
+      "turns_expected": 8,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-010",
+      "goal": "Escalate an unresolved refund from three weeks ago",
+      "caller_style": "noisy",
+      "difficulty": 0.83,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-011",
+      "goal": "Dispute a duplicate charge on last month's bill",
+      "caller_style": "neutral",
+      "difficulty": 0.64,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-012",
+      "goal": "Cancel an auto-renewing subscription",
+      "caller_style": "fast",
+      "difficulty": 0.26,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-013",
+      "goal": "Update the card on file",
+      "caller_style": "hesitant",
+      "difficulty": 0.29,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-014",
+      "goal": "Ask why the invoice went up",
+      "caller_style": "accented",
+      "difficulty": 0.36,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-015",
+      "goal": "Request a refund for a failed order",
+      "caller_style": "noisy",
+      "difficulty": 0.61,
+      "turns_expected": 8,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-016",
+      "goal": "Split one invoice across two departments",
+      "caller_style": "neutral",
+      "difficulty": 0.45,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-017",
+      "goal": "Reinstate a suspended account",
+      "caller_style": "fast",
+      "difficulty": 0.76,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-018",
+      "goal": "Confirm a payment that already cleared",
+      "caller_style": "hesitant",
+      "difficulty": 0.39,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-019",
+      "goal": "Change the billing email address",
+      "caller_style": "accented",
+      "difficulty": 0.55,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-020",
+      "goal": "Escalate an unresolved refund from three weeks ago",
+      "caller_style": "noisy",
+      "difficulty": 0.52,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-021",
+      "goal": "Dispute a duplicate charge on last month's bill",
+      "caller_style": "neutral",
+      "difficulty": 0.49,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-022",
+      "goal": "Cancel an auto-renewing subscription",
+      "caller_style": "fast",
+      "difficulty": 0.85,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-023",
+      "goal": "Update the card on file",
+      "caller_style": "hesitant",
+      "difficulty": 0.67,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-024",
+      "goal": "Ask why the invoice went up",
+      "caller_style": "accented",
+      "difficulty": 0.7,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-025",
+      "goal": "Request a refund for a failed order",
+      "caller_style": "noisy",
+      "difficulty": 0.42,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-026",
+      "goal": "Split one invoice across two departments",
+      "caller_style": "neutral",
+      "difficulty": 0.59,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-027",
+      "goal": "Reinstate a suspended account",
+      "caller_style": "fast",
+      "difficulty": 0.49,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-028",
+      "goal": "Confirm a payment that already cleared",
+      "caller_style": "hesitant",
+      "difficulty": 0.48,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-029",
+      "goal": "Change the billing email address",
+      "caller_style": "accented",
+      "difficulty": 0.76,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-030",
+      "goal": "Escalate an unresolved refund from three weeks ago",
+      "caller_style": "noisy",
+      "difficulty": 0.38,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-031",
+      "goal": "Dispute a duplicate charge on last month's bill",
+      "caller_style": "neutral",
+      "difficulty": 0.53,
+      "turns_expected": 8,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-032",
+      "goal": "Cancel an auto-renewing subscription",
+      "caller_style": "fast",
+      "difficulty": 0.5,
+      "turns_expected": 10,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-033",
+      "goal": "Update the card on file",
+      "caller_style": "hesitant",
+      "difficulty": 0.63,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-034",
+      "goal": "Ask why the invoice went up",
+      "caller_style": "accented",
+      "difficulty": 0.45,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-035",
+      "goal": "Request a refund for a failed order",
+      "caller_style": "noisy",
+      "difficulty": 0.45,
+      "turns_expected": 8,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-036",
+      "goal": "Split one invoice across two departments",
+      "caller_style": "neutral",
+      "difficulty": 0.7,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-037",
+      "goal": "Reinstate a suspended account",
+      "caller_style": "fast",
+      "difficulty": 0.33,
+      "turns_expected": 4,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-038",
+      "goal": "Confirm a payment that already cleared",
+      "caller_style": "hesitant",
+      "difficulty": 0.26,
+      "turns_expected": 8,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-039",
+      "goal": "Change the billing email address",
+      "caller_style": "accented",
+      "difficulty": 0.73,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    },
+    {
+      "id": "support-040",
+      "goal": "Escalate an unresolved refund from three weeks ago",
+      "caller_style": "noisy",
+      "difficulty": 0.66,
+      "turns_expected": 6,
+      "requires_tools": [
+        "lookup_account",
+        "issue_refund"
+      ],
+      "metadata": {
+        "domain": "billing"
+      }
+    }
+  ]
+}
