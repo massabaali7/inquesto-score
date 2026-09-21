@@ -146,6 +146,12 @@ def main() -> int:
         macros.append(f"\\newcommand{{\\besttxname}}{{{besttx[0] if besttx else '--'}}}")
         macros.append(f"\\newcommand{{\\besttx}}{{{fmt(besttx[1]['audio_only']['score_if_transcript_only']) if besttx else '--'}}}")
         macros.append(f"\\newcommand{{\\besttxis}}{{{fmt(besttx[1]['score']) if besttx else '--'}}}")
+        macros.append(f"\\newcommand{{\\nfalseaccept}}{{{sum(r['failures_by_type'].get('false_accept', 0) for _, r in recs)}}}")
+        macros.append(f"\\newcommand{{\\nfalsereject}}{{{sum(r['failures_by_type'].get('false_reject', 0) for _, r in recs)}}}")
+        ids = [r["views"]["identity"]["score"] for _, r in recs if r["views"]["identity"]["score"] is not None]
+        macros.append(f"\\newcommand{{\\idmin}}{{{fmt(min(ids)) if ids else '--'}}}")
+        macros.append(f"\\newcommand{{\\idmax}}{{{fmt(max(ids)) if ids else '--'}}}")
+        macros.append(f"\\newcommand{{\\nunverified}}{{{sum(r['failures_by_type'].get('unverified_action', 0) for _, r in recs)}}}")
         hosted = [r for _, r in recs if "$^h$" in _]
         macros.append(f"\\newcommand{{\\nhosted}}{{{len(hosted)}}}")
         worst_gap = min((r["views"]["fairness"].get("delta_vs_reference") for _, r in recs if r["views"]["fairness"].get("delta_vs_reference") is not None), default=None)
