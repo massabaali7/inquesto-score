@@ -169,3 +169,40 @@ def score_dir(out: pathlib.Path, protocol: spec.Protocol = spec.PROTOCOL) -> dic
                  extra={"runtime": agent.get("runtime"), "config": agent.get("config")})
     (out / "inquesto-record.json").write_text(json.dumps(rec, indent=1))
     return rec
+
+
+def rejudge(out: pathlib.Path, judge_model: str, limit: int = 0, protocol: spec.Protocol = spec.PROTOCOL,
+            on_call: Callable[[int, int], None] | None = None) -> dict[str, Any]:
+    """Re-run the structured judge on every stored conversation with `judge_model`, keeping the
+    previous verdicts under `verdicts_prev`, then re-score. Audio, timing and tool events are untouched."""
+    import os
+
+    from ..adapters.local import LocalRuntime
+    from ..program import Turn
+
+    rt = LocalRuntime(judge_model=judge_model)
+    rt._client = rt._new_client()
+    ts = load(protocol.testset)
+    by_id = {s.id: s for s in ts}
+    paths = sorted((out / "calls").glob("*.json"))
+    if limit:
+        paths = paths[:limit]
+    for i, p in enumerate(paths):
+        d = json.loads(p.read_text())
+        conv_d = d["conversation"]
+        if (conv_d["metadata"].get("verdicts") or {}).get("model") == judge_model:
+            continue
+        sc = by_id[d["result"]["scenario_id"]]
+        turns = [Turn(**t) for t in conv_d["turns"]]
+        verdicts = rt.protocol_verdicts(sc, turns, int(conv_d["metadata"].get("seed", 0) or 0))
+        prev = conv_d["metadata"].get("verdicts")
+        if prev is not None and prev.get("model") != judge_model:
+            conv_d["metadata"].setdefault("verdicts_prev", []).append(prev)
+        conv_d["metadata"]["verdicts"] = verdicts
+        conv_d["task_completed"] = bool(verdicts.get("goal_achieved"))
+        tmp = p.with_suffix(f".{os.getpid()}.tmp")
+        tmp.write_text(json.dumps(d, indent=1))
+        tmp.replace(p)
+        if on_call:
+            on_call(i + 1, len(paths))
+    return score_dir(out, protocol)

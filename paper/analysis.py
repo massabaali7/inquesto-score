@@ -43,9 +43,11 @@ def main_table(recs: list[tuple[str, dict]]) -> str:
         v = r["views"]
         sev = r["failures_by_severity"]
         au = r["audio_only"]
+        bg = v["fairness"]["by_group"]
+        groups = " & ".join(fmt(bg[g]["score"]) if g in bg else "--" for g in ("us_female", "us_male", "uk_female", "uk_male"))
         rows.append(f"{name} & {fmt(r['score'])} & [{fmt(r['ci95'][0])}, {fmt(r['ci95'][1])}] & "
                     f"{fmt(v['behavior']['score'])} & {fmt(v['robustness']['score'])} & {fmt(v['identity']['score'])} & {fmt(v['fairness']['score'])} & "
-                    f"{sev['S3']}/{sev['S4']}/{sev['S5']} & {fmt(au['score_if_transcript_only'])} & {au['failed_only_on_audio_events']}" + ROW_END)
+                    f"{groups} & {sev['S3']}/{sev['S4']}/{sev['S5']} & {fmt(au['score_if_transcript_only'])} & {au['failed_only_on_audio_events']}" + ROW_END)
     return "\n".join(rows)
 
 
@@ -74,6 +76,15 @@ def fairness_table(recs: list[tuple[str, dict]]) -> str:
     return "\n".join(rows)
 
 
+def sensitivity_table(recs: list[tuple[str, dict]]) -> str:
+    rows = []
+    for name, r in recs:
+        ss = r.get("severity_sensitivity") or {}
+        cells = " & ".join(fmt(ss.get(f"S{t}", {}).get("score")) for t in (2, 3, 4, 5))
+        rows.append(f"{name} & {cells}" + ROW_END)
+    return "\n".join(rows)
+
+
 def failure_types(recs: list[tuple[str, dict]]) -> str:
     total: dict[str, int] = {}
     for _, r in recs:
@@ -92,11 +103,12 @@ def main() -> int:
     recs.sort(key=lambda x: -(x[1]["score"] or 0))
     def tab(spec_: str, head: str, body: str) -> str:
         return f"\\begin{{tabular}}{{{spec_}}}\n\\toprule\n{head} \\\\\n\\midrule\n{body}\n\\bottomrule\n\\end{{tabular}}\n"
-    (ns.out / "main_table.tex").write_text(tab("@{}lcc cccc c cc@{}", "Agent (LLM / endpointing) & IS & 95\\,\\% CI & B & R & I & F & S3/4/5 & tx-only & audio-only", main_table(recs)))
+    (ns.out / "main_table.tex").write_text(tab("@{}lcc cccc cccc c cc@{}", "Agent (LLM / endpointing) & IS & 95\\,\\% CI & B & R & I & F & US-F & US-M & UK-F & UK-M & S3/4/5 & tx-only & audio-only", main_table(recs)))
     (ns.out / "ablation_table.tex").write_text(tab("@{}lcccc@{}", "Agent & IS (rate) & mean of views & geometric & min view", ablation_table(recs)))
     (ns.out / "audio_table.tex").write_text(tab("@{}lccc@{}", "Agent & IS & transcript-only & audio-only failures", audio_table(recs)))
     (ns.out / "fairness_table.tex").write_text(tab("@{}lcccc c@{}", "Agent & US-F & US-M & UK-F & UK-M & $\\Delta$ worst", fairness_table(recs)))
     (ns.out / "failure_types.tex").write_text(tab("@{}lc@{}", "Event & count", failure_types(recs)))
+    (ns.out / "sensitivity_table.tex").write_text(tab("@{}lcccc@{}", "Agent & S2+ & \\textbf{S3+ (v0.1)} & S4+ & S5", sensitivity_table(recs)))
     n_calls = sum(r["n"] for _, r in recs)
     macros = [f"\\newcommand{{\\nagents}}{{{len(recs)}}}", f"\\newcommand{{\\ncalls}}{{{n_calls}}}"]
     if recs:
@@ -152,6 +164,17 @@ def main() -> int:
         macros.append(f"\\newcommand{{\\idmin}}{{{fmt(min(ids)) if ids else '--'}}}")
         macros.append(f"\\newcommand{{\\idmax}}{{{fmt(max(ids)) if ids else '--'}}}")
         macros.append(f"\\newcommand{{\\nunverified}}{{{sum(r['failures_by_type'].get('unverified_action', 0) for _, r in recs)}}}")
+        v0 = recs[0][1]["views"]
+        for k, name in (("behavior", "nB"), ("robustness", "nR"), ("identity", "nI")):
+            macros.append(f"\\newcommand{{\\{name}}}{{{v0[k]['n']}}}")
+        gs = [g["n"] for g in v0["fairness"]["by_group"].values()]
+        macros.append(f"\\newcommand{{\\nG}}{{{min(gs) if gs else '--'}--{max(gs) if gs else '--'}}}")
+        best = recs[0][1]
+        macros.append(f"\\newcommand{{\\bestcite}}{{{best['citation'].split('; views')[0].replace('%', chr(92) + '%')}}}")
+        ss = [r.get("severity_sensitivity") for _, r in recs if r.get("severity_sensitivity")]
+        if ss:
+            for t in (2, 4, 5):
+                macros.append(f"\\newcommand{{\\sensS{'two' if t == 2 else 'four' if t == 4 else 'five'}}}{{{fmt(sum(x[f'S{t}']['score'] - x['S3']['score'] for x in ss) / len(ss), 1)}}}")
         hosted = [r for _, r in recs if "$^h$" in _]
         macros.append(f"\\newcommand{{\\nhosted}}{{{len(hosted)}}}")
         worst_gap = min((r["views"]["fairness"].get("delta_vs_reference") for _, r in recs if r["views"]["fairness"].get("delta_vs_reference") is not None), default=None)

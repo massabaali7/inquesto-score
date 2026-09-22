@@ -152,6 +152,7 @@ def record(calls: list[CallResult], agent: str, agent_fingerprint: str = "", pro
         "failures_by_type": failures_by_type(calls),
         "audio_only": audio_only_failures(calls),
         "aggregation_ablation": aggregation_ablation(v),
+        "severity_sensitivity": severity_sensitivity(calls),
         "design": {"scenarios": len({c.scenario_id for c in calls}), "conditions": sorted({c.condition for c in calls}),
                    "groups": sorted({c.group for c in calls}), "seeds": len({c.seed for c in calls})},
         "definition": protocol.describe(),
@@ -164,9 +165,23 @@ def record(calls: list[CallResult], agent: str, agent_fingerprint: str = "", pro
 
 
 def citation_line(rec: dict[str, Any]) -> str:
+    """The reporting form: score with its interval and n, then the diagnostic views."""
     v = rec["views"]
     s = lambda k: "—" if v[k]["score"] is None else f"{v[k]['score']:.0f}"
-    half = (rec["ci95"][1] - rec["ci95"][0]) / 2 if rec["score"] is not None else 0
-    score = "—" if rec["score"] is None else f"{rec['score']:.0f} ± {half:.0f}"
-    return (f"Inquesto v{rec['protocol'].split('-')[-1]}: {score} "
-            f"(B {s('behavior')} · R {s('robustness')} · I {s('identity')} · F {s('fairness')}), n = {rec['n']}")
+    ver = rec["protocol"].split("-")[-1]
+    if rec["score"] is None:
+        return f"Inquesto v{ver} = n/a (n = {rec['n']})"
+    return (f"Inquesto v{ver} = {rec['score']:.1f}% (95% CI {rec['ci95'][0]:.1f}–{rec['ci95'][1]:.1f}; n = {rec['n']}); "
+            f"views B {s('behavior')} · R {s('robustness')} · I {s('identity')} · F {s('fairness')}")
+
+
+def severity_sensitivity(calls: list[CallResult]) -> dict[str, Any]:
+    """The score under each clean-success threshold: what fails a call is a protocol choice, shown."""
+    out = {}
+    for th, label in ((2, "no degraded-experience failure"), (3, "no functional failure (v0.1)"), (4, "no material-risk failure"), (5, "no critical failure")):
+        k = sum(1 for c in calls if c.goal_achieved and c.worst < th)
+        n = len(calls)
+        lo, hi = wilson(k, n)
+        out[f"S{th}"] = {"threshold": th, "meaning": label, "score": round(100 * k / n, 1) if n else None,
+                         "lo": round(100 * lo, 1), "hi": round(100 * hi, 1)}
+    return out

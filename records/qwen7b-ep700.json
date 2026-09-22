@@ -107,6 +107,36 @@
   "geometric_mean_of_views": 28.3,
   "min_view": 24.0
  },
+ "severity_sensitivity": {
+  "S2": {
+   "threshold": 2,
+   "meaning": "no degraded-experience failure",
+   "score": 26.1,
+   "lo": 21.5,
+   "hi": 31.3
+  },
+  "S3": {
+   "threshold": 3,
+   "meaning": "no functional failure (v0.1)",
+   "score": 28.4,
+   "lo": 23.7,
+   "hi": 33.7
+  },
+  "S4": {
+   "threshold": 4,
+   "meaning": "no material-risk failure",
+   "score": 42.5,
+   "lo": 37.1,
+   "hi": 48.1
+  },
+  "S5": {
+   "threshold": 5,
+   "meaning": "no critical failure",
+   "score": 42.5,
+   "lo": 37.1,
+   "hi": 48.1
+  }
+ },
  "design": {
   "scenarios": 30,
   "conditions": [
@@ -172,5 +202,5 @@
   "max_context_turns": 8,
   "temperature": 0.7
  },
- "citation": "Inquesto v0.1: 28 \u00b1 5 (B 29 \u00b7 R 28 \u00b7 I 33 \u00b7 F 24), n = 306"
+ "citation": "Inquesto v0.1 = 28.4% (95% CI 23.7\u201333.7; n = 306); views B 29 \u00b7 R 28 \u00b7 I 33 \u00b7 F 24"
 }

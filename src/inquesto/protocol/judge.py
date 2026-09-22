@@ -83,9 +83,9 @@ def parse(text: str) -> dict:
 
 
 def judge(complete: Callable[[str, str], str], goal: str, turns: list[Turn], needs_human: bool = False,
-          correction: bool = False, identity: str | None = None) -> dict:
+          correction: bool = False, identity: str | None = None, model: str | None = None) -> dict:
     """`complete(system, user) -> text` is the pinned model at temperature 0."""
     prompt = build_prompt(goal, turns, needs_human, correction, identity)
     verdict = parse(complete(SYSTEM, prompt))
-    verdict["model"] = spec.JUDGE_MODEL
+    verdict["model"] = model or spec.JUDGE_MODEL
     return verdict

@@ -8,12 +8,12 @@
 <p align="center"><b>One number for a voice agent, with a sentence-long meaning.</b></p>
 
 <p align="center">
-<code>Inquesto v0.1: 31 ± 5 (B 29 · R 32 · I 17 · F 27), n = 306</code>
+<code>Inquesto v0.1 = 31.0% (95% CI 26.0–36.4; n = 306); views B 29 · R 32 · I 17 · F 27</code>
 </p>
 
 > **An Inquesto Score of 73 means: in 73 % of the protocol's calls, the caller got what they came for and nothing material went wrong.**
 
-The Inquesto Score is the rate of *clean successes* over a fixed, versioned population of 306 calls with real audio. A call is clean when the caller's goal was achieved **and** no failure event of severity S3 or above occurred. Timing failures (late replies, talking over the caller) are read from the audio, never from a transcript. Judged failures (context loss, wrong information, identity decisions) come from one pinned open model. Four *views* of the same rate travel with the score: **B**ehavior, **R**obustness, **I**dentity, **F**airness.
+The Inquesto Score is the rate of *clean successes* over a fixed, versioned population of 306 calls with real audio. A call is clean when the caller's goal was achieved **and** no failure event of severity S3 or above occurred. Timing failures (late replies, talking over the caller) are read from the audio, never from a transcript. Judged failures (context loss, wrong information, identity decisions) come from one pinned open model. Four *diagnostic views* of the same rate travel with the score and are never combined into it: **B**ehavior, **R**obustness, **I**dentity handling, **F**airness.
 
 Paper: *Inquesto Score: a clean-success rate for voice agents with audio-grounded failure detection* (Baali & Raj, ICASSP 2027, submitted). Specification: [docs/inquesto-score-v0.1.md](docs/inquesto-score-v0.1.md). Records for the 13 agents in the paper: [records/](records/).
 
@@ -57,7 +57,7 @@ Or from Python:
 ```python
 from inquesto import score
 rec = score(BillingAgent, model="gpt-4.1-mini")
-print(rec["citation"])          # Inquesto v0.1: 14 ± 4 (B 12 · R 13 · I 33 · F 11), n = 306
+print(rec["citation"])          # Inquesto v0.1 = 14.1% (95% CI 10.7–18.4; n = 306); views B 12 · R 13 · I 33 · F 11
 print(rec["views"]["fairness"]) # per speaker group, with each group's gap to the reference voice
 ```
 
@@ -123,7 +123,7 @@ Absolute scores are low on purpose: the reference agents are small models behind
 
 ## Reporting a score
 
-Report the full citation line (score, interval, views, n) and the protocol version, attach `inquesto-record.json` to the paper or model card, and cite the paper (`CITATION.cff`). Re-scoring a finished directory after a detector change: `inquesto protocol score --out inquesto-runs/<agent>`.
+Report the full citation line: `Inquesto v0.1 = 31.0% (95% CI 26.0–36.4; n = 306)` plus the views, and the protocol version, attach `inquesto-record.json` to the paper or model card, and cite the paper (`CITATION.cff`). Re-scoring a finished directory after a detector change: `inquesto protocol score --out inquesto-runs/<agent>`.
 
 ## Relation to Inquesto
 

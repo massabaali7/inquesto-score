@@ -358,7 +358,7 @@ class LocalRuntime:
             return self._complete(model, system, [{"role": "user", "content": user}], 0.0, seed).text
 
         return pj.judge(complete, scenario.goal, turns, needs_human=scenario.needs_human,
-                        correction=bool(meta.get("correction")), identity=meta.get("identity"))
+                        correction=bool(meta.get("correction")), identity=meta.get("identity"), model=model)
 
     def judge(self, scenario: Scenario, turns: list[Turn], seed: int) -> tuple[bool, str]:
         """Ask the judge model whether the caller's goal was met; returns (ok, verdict)."""

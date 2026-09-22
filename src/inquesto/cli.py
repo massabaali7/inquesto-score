@@ -260,6 +260,15 @@ def cmd_protocol(args) -> int:
     out = Path(args.out)
     if args.action == "score":
         rec = prun.score_dir(out)
+    elif args.action == "rejudge":
+        t_start = time.time()
+
+        def tick(i, n):
+            if i % 25 == 0 or i == n:
+                el = time.time() - t_start
+                print(f"  {D}[{i}/{n}] rejudged with {args.judge_model}  eta {el / i * (n - i) / 60:.0f} min{X}", flush=True)
+
+        rec = prun.rejudge(out, args.judge_model, limit=args.limit, on_call=tick)
     else:
         program = _apply_overrides(_load_program(args.agent), args.set)
         t_start = time.time()
@@ -424,7 +433,8 @@ def main(argv: list[str] | None = None) -> int:
     g.set_defaults(func=cmd_gate)
 
     pr = sub.add_parser("protocol", help="Inquesto Protocol v0.1: run the call population, print the citation line")
-    pr.add_argument("action", choices=["run", "score"], help="run the population, or re-score a finished directory")
+    pr.add_argument("action", choices=["run", "score", "rejudge"], help="run the population, re-score a finished directory, or re-judge it with --judge-model")
+    pr.add_argument("--judge-model", default="", metavar="MODEL", help="rejudge: the model that re-reads every stored transcript")
     pr.add_argument("agent", nargs="?", default="examples/protocol_agent/agent.py", help="path/to/agent.py[:Class]")
     pr.add_argument("--out", required=True, metavar="DIR", help="output directory (one per agent configuration; resumable)")
     pr.add_argument("--runtime", default="pipecat", help="runtime adapter (pipecat = audio; local = transcript only)")

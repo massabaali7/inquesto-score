@@ -50,7 +50,8 @@ def test_record_carries_the_citation_line_and_severity_counts():
     assert rec["protocol"] == "inquesto-0.1" and rec["n"] == 20
     assert rec["score"] == 70.0 and rec["ci95"][0] < 70 < rec["ci95"][1]
     assert rec["failures_by_severity"]["S4"] == 1 and rec["failures_by_severity"]["S2"] == 1
-    assert rec["citation"].startswith("Inquesto v0.1: 70 ±") and "n = 20" in rec["citation"]
+    assert rec["citation"].startswith("Inquesto v0.1 = 70.0% (95% CI") and "n = 20" in rec["citation"] and "views B" in rec["citation"]
+    assert rec["severity_sensitivity"]["S3"]["score"] == 70.0 and rec["severity_sensitivity"]["S5"]["score"] == 75.0
     assert citation_line(rec) == rec["citation"]
 
 
@@ -174,4 +175,4 @@ def test_score_command_runs_end_to_end(tmp_path, capsys):
     from inquesto.cli import main
     rc = main(["score", "examples/protocol_agent/agent.py", "--runtime", "mock", "--limit", "5", "--out", str(tmp_path / "r")])
     out = capsys.readouterr().out
-    assert rc == 0 and "Inquesto v0.1:" in out and (tmp_path / "r" / "inquesto-record.json").exists()
+    assert rc == 0 and "Inquesto v0.1 =" in out and (tmp_path / "r" / "inquesto-record.json").exists()
