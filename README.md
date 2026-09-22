@@ -25,7 +25,7 @@ inquesto setup                            # downloads the verifier, checks your 
 inquesto score my_agent.py                # 306 calls later: the citation line + inquesto-runs/<agent>/inquesto-record.json
 ```
 
-`inquesto setup` needs an OpenAI-compatible endpoint that serves the protocol's pinned caller and judge model, Qwen2.5-7B-Instruct. The easiest is [Ollama](https://ollama.com): `ollama pull qwen2.5:7b && ollama serve` (default `INQUESTO_LLM_BASE_URL=http://127.0.0.1:11434/v1`). Kokoro (TTS) and Whisper (STT) download themselves on first use. A GPU makes the caller and judge fast; the audio stack runs on CPU. A full run is about 2 hours on one GPU node; `--limit 20` gives a 10-minute smoke test.
+`inquesto setup` needs an OpenAI-compatible endpoint that serves the protocol's pinned caller (Qwen2.5-7B-Instruct) and judge (Gemma-2-9B-Instruct). The easiest is [Ollama](https://ollama.com): `ollama pull qwen2.5:7b gemma2:9b && ollama serve` (default `INQUESTO_LLM_BASE_URL=http://127.0.0.1:11434/v1`). Kokoro (TTS) and Whisper (STT) download themselves on first use. A GPU makes the caller and judge fast; the audio stack runs on CPU. A full run is about 2 hours on one GPU node; `--limit 20` gives a 10-minute smoke test.
 
 ## Define your agent
 
@@ -87,7 +87,7 @@ class MyRuntime:
 | Severity table | fixed per event type: verbose S1 · slow median / talk-over S2 · slow turn / repeated talk-over / context loss / false reject S3 · wrong info / promised-not-done S4 · unverified action / impostor served S5 |
 | Views | Behavior = clean audio, reference voice; Robustness = degraded conditions; Identity = identity scenarios; Fairness = worst speaker group, every gap reported |
 | Interval | 95 % Wilson interval, always reported with n |
-| Judge | Qwen2.5-7B-Instruct at temperature 0, fixed rubric; agreement with humans reported per event |
+| Judge | Gemma-2-9B-Instruct at temperature 0, fixed rubric, a different family from the caller and from every agent tested; agreement with humans reported per event |
 | Identity tool | WeSpeaker ResNet34-LM (ONNX) enrolled on the account holder's voice, threshold calibrated so the verifier itself makes no error on the population |
 | Versioning | a protocol version never changes after release; any change is a new version |
 

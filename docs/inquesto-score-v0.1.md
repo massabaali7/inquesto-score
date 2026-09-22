@@ -129,7 +129,7 @@ clean audio and would pass; that attack is out of scope for v0.1 and stated in t
 - Goal predicates prefer state checks (a booking exists with the corrected date) over
   judgment. Where a judge is needed (context loss, wrong information, verbosity) the protocol
   fixes the rubric text, the gold answer, and the judge model + version; v0.1 ships one open
-  judge (Qwen2.5-7B-Instruct) so anyone can reproduce the number without an API key.
+  judge (Gemma-2-9B-Instruct; the caller is Qwen2.5-7B, a different family) so anyone can reproduce the number without an API key.
 - Judge reliability is measured, not assumed: κ against human labels on the calibration set
   (§8), reported per event type.
 
@@ -186,5 +186,5 @@ worst-group views, and a versioning contract.
 4. Record is open and numeric; evidence is product. (yes)
 5. v0.1 scope: Behavior + Robustness + Fairness measured for real; Identity defined and
    measured on a stub or deferred to v0.2 (say so in the paper).  (No add identity piece of cake we've already worked in this)
-6. Judge: one open model pinned by version; κ reported. (yes)
+6. Judge: one open model pinned by version; κ reported. (yes) — pinned to Gemma-2-9B, distinct from the caller (Qwen2.5-7B) and from every agent tested.
 7. CI mandatory. (yes)

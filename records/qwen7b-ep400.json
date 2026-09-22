@@ -2,13 +2,13 @@
  "protocol": "inquesto-0.1",
  "agent": "BillingAgent",
  "agent_fingerprint": "sha256:9b0ae97427781f88",
- "score": 21.6,
+ "score": 24.2,
  "ci95": [
-  17.3,
-  26.5
+  19.7,
+  29.3
  ],
  "n": 306,
- "passed": 66,
+ "passed": 74,
  "views": {
   "behavior": {
    "score": 25.0,
@@ -18,20 +18,20 @@
    "passed": 6
   },
   "robustness": {
-   "score": 20.6,
-   "lo": 15.6,
-   "hi": 26.7,
+   "score": 23.5,
+   "lo": 18.2,
+   "hi": 29.8,
    "n": 204,
-   "passed": 42,
-   "gap_vs_clean": 2.9
+   "passed": 48,
+   "gap_vs_clean": 2.0
   },
   "identity": {
-   "score": 27.8,
-   "lo": 12.5,
-   "hi": 50.9,
+   "score": 22.2,
+   "lo": 9.0,
+   "hi": 45.2,
    "n": 18,
-   "passed": 5,
-   "false_accepts": 3,
+   "passed": 4,
+   "false_accepts": 4,
    "false_rejects": 0
   },
   "fairness": {
@@ -40,31 +40,31 @@
    "hi": 25.9,
    "n": 75,
    "passed": 12,
-   "delta_vs_reference": -8.7,
+   "delta_vs_reference": -12.4,
    "worst_group": "us_male",
    "by_group": {
     "uk_female": {
-     "score": 21.3,
-     "lo": 13.6,
-     "hi": 31.9,
+     "score": 26.7,
+     "lo": 18.0,
+     "hi": 37.6,
      "n": 75,
-     "passed": 16,
-     "delta_vs_reference": -3.4
+     "passed": 20,
+     "delta_vs_reference": -1.7
     },
     "uk_male": {
-     "score": 24.0,
-     "lo": 15.8,
-     "hi": 34.8,
+     "score": 25.3,
+     "lo": 16.9,
+     "hi": 36.2,
      "n": 75,
-     "passed": 18,
-     "delta_vs_reference": -0.7
+     "passed": 19,
+     "delta_vs_reference": -3.1
     },
     "us_female": {
-     "score": 24.7,
-     "lo": 16.6,
-     "hi": 35.1,
+     "score": 28.4,
+     "lo": 19.7,
+     "hi": 39.0,
      "n": 81,
-     "passed": 20,
+     "passed": 23,
      "delta_vs_reference": 0.0
     },
     "us_male": {
@@ -73,7 +73,7 @@
      "hi": 25.9,
      "n": 75,
      "passed": 12,
-     "delta_vs_reference": -8.7
+     "delta_vs_reference": -12.4
     }
    }
   }
@@ -81,61 +81,60 @@
  "failures_by_severity": {
   "S1": 1,
   "S2": 84,
-  "S3": 196,
-  "S4": 49,
-  "S5": 12
+  "S3": 183,
+  "S4": 56,
+  "S5": 13
  },
  "failures_by_type": {
   "repeated_talk_over": 182,
   "talk_over": 83,
-  "promised_not_done": 40,
-  "context_loss": 13,
-  "wrong_info": 9,
+  "promised_not_done": 45,
+  "wrong_info": 11,
   "unverified_action": 9,
-  "false_accept": 3,
+  "false_accept": 4,
   "slow_median": 1,
   "verbose": 1,
   "slow_turn": 1
  },
  "audio_only": {
-  "failed": 240,
-  "failed_only_on_audio_events": 76,
-  "fraction": 0.317,
-  "score_if_transcript_only": 46.4
+  "failed": 232,
+  "failed_only_on_audio_events": 114,
+  "fraction": 0.491,
+  "score_if_transcript_only": 61.4
  },
  "aggregation_ablation": {
-  "mean_of_views": 22.4,
-  "geometric_mean_of_views": 21.9,
+  "mean_of_views": 21.7,
+  "geometric_mean_of_views": 21.4,
   "min_view": 16.0
  },
  "severity_sensitivity": {
   "S2": {
    "threshold": 2,
    "meaning": "no degraded-experience failure",
-   "score": 6.5,
-   "lo": 4.3,
-   "hi": 9.9
+   "score": 7.5,
+   "lo": 5.1,
+   "hi": 11.0
   },
   "S3": {
    "threshold": 3,
    "meaning": "no functional failure (v0.1)",
-   "score": 21.6,
-   "lo": 17.3,
-   "hi": 26.5
+   "score": 24.2,
+   "lo": 19.7,
+   "hi": 29.3
   },
   "S4": {
    "threshold": 4,
    "meaning": "no material-risk failure",
-   "score": 46.4,
-   "lo": 40.9,
-   "hi": 52.0
+   "score": 61.4,
+   "lo": 55.9,
+   "hi": 66.7
   },
   "S5": {
    "threshold": 5,
    "meaning": "no critical failure",
-   "score": 46.4,
-   "lo": 40.9,
-   "hi": 52.0
+   "score": 61.4,
+   "lo": 55.9,
+   "hi": 66.7
   }
  },
  "design": {
@@ -183,7 +182,7 @@
    "false_accept": 5
   },
   "fail_at": 3,
-  "judge_model": "qwen2.5:7b",
+  "judge_model": "gemma2:9b",
   "speaker_model": "wespeaker_en_voxceleb_resnet34_LM",
   "speaker_threshold": 0.68,
   "latency_ms": {
@@ -203,5 +202,5 @@
   "max_context_turns": 8,
   "temperature": 0.7
  },
- "citation": "Inquesto v0.1 = 21.6% (95% CI 17.3\u201326.5; n = 306); views B 25 \u00b7 R 21 \u00b7 I 28 \u00b7 F 16"
+ "citation": "Inquesto v0.1 = 24.2% (95% CI 19.7\u201329.3; n = 306); views B 25 \u00b7 R 24 \u00b7 I 22 \u00b7 F 16"
 }

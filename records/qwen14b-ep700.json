@@ -2,78 +2,78 @@
  "protocol": "inquesto-0.1",
  "agent": "BillingAgent",
  "agent_fingerprint": "sha256:bab25dd0a9d6e066",
- "score": 23.2,
+ "score": 32.7,
  "ci95": [
-  18.8,
-  28.2
+  27.7,
+  38.1
  ],
  "n": 306,
- "passed": 71,
+ "passed": 100,
  "views": {
   "behavior": {
-   "score": 16.7,
-   "lo": 6.7,
-   "hi": 35.9,
+   "score": 37.5,
+   "lo": 21.2,
+   "hi": 57.3,
    "n": 24,
-   "passed": 4
+   "passed": 9
   },
   "robustness": {
-   "score": 23.5,
-   "lo": 18.2,
-   "hi": 29.8,
+   "score": 31.9,
+   "lo": 25.9,
+   "hi": 38.5,
    "n": 204,
-   "passed": 48,
-   "gap_vs_clean": -1.0
+   "passed": 65,
+   "gap_vs_clean": 2.4
   },
   "identity": {
-   "score": 27.8,
-   "lo": 12.5,
-   "hi": 50.9,
+   "score": 38.9,
+   "lo": 20.3,
+   "hi": 61.4,
    "n": 18,
-   "passed": 5,
+   "passed": 7,
    "false_accepts": 4,
-   "false_rejects": 1
+   "false_rejects": 0
   },
   "fairness": {
-   "score": 20.0,
-   "lo": 12.5,
-   "hi": 30.4,
+   "score": 29.3,
+   "lo": 20.2,
+   "hi": 40.4,
    "n": 75,
-   "passed": 15,
-   "delta_vs_reference": -1.0,
+   "passed": 22,
+   "delta_vs_reference": -5.3,
    "worst_group": "us_male",
    "by_group": {
     "uk_female": {
-     "score": 25.3,
-     "lo": 16.9,
-     "hi": 36.2,
+     "score": 30.7,
+     "lo": 21.4,
+     "hi": 41.8,
      "n": 75,
-     "passed": 19,
-     "delta_vs_reference": 4.3
+     "passed": 23,
+     "delta_vs_reference": -3.9
     },
     "uk_male": {
-     "score": 26.7,
-     "lo": 18.0,
-     "hi": 37.6,
+     "score": 36.0,
+     "lo": 26.1,
+     "hi": 47.3,
      "n": 75,
-     "passed": 20,
-     "delta_vs_reference": 5.7
+     "passed": 27,
+     "delta_vs_reference": 1.4
     },
     "us_female": {
-     "score": 21.0,
-     "lo": 13.5,
-     "hi": 31.1,
+     "score": 34.6,
+     "lo": 25.1,
+     "hi": 45.4,
      "n": 81,
-     "passed": 17,
+     "passed": 28,
      "delta_vs_reference": 0.0
     },
     "us_male": {
-     "score": 20.0,
-     "lo": 12.5,
-     "hi": 30.4,
+     "score": 29.3,
+     "lo": 20.2,
+     "hi": 40.4,
      "n": 75,
-     "passed": 15,
-     "delta_vs_reference": -1.0
+     "passed": 22,
+     "delta_vs_reference": -5.3
     }
    }
   }
@@ -81,8 +81,8 @@
  "failures_by_severity": {
   "S1": 116,
   "S2": 62,
-  "S3": 119,
-  "S4": 33,
+  "S3": 103,
+  "S4": 22,
   "S5": 89
  },
  "failures_by_type": {
@@ -91,52 +91,51 @@
   "unverified_action": 85,
   "talk_over": 36,
   "slow_median": 26,
-  "wrong_info": 24,
-  "context_loss": 17,
-  "promised_not_done": 9,
+  "wrong_info": 12,
+  "promised_not_done": 10,
   "false_accept": 4,
   "slow_turn": 3,
-  "false_reject": 1
+  "context_loss": 2
  },
  "audio_only": {
-  "failed": 235,
-  "failed_only_on_audio_events": 45,
-  "fraction": 0.191,
-  "score_if_transcript_only": 37.9
+  "failed": 206,
+  "failed_only_on_audio_events": 64,
+  "fraction": 0.311,
+  "score_if_transcript_only": 53.6
  },
  "aggregation_ablation": {
-  "mean_of_views": 22.0,
-  "geometric_mean_of_views": 21.6,
-  "min_view": 16.7
+  "mean_of_views": 34.4,
+  "geometric_mean_of_views": 34.2,
+  "min_view": 29.3
  },
  "severity_sensitivity": {
   "S2": {
    "threshold": 2,
    "meaning": "no degraded-experience failure",
-   "score": 15.0,
-   "lo": 11.5,
-   "hi": 19.5
+   "score": 21.9,
+   "lo": 17.6,
+   "hi": 26.9
   },
   "S3": {
    "threshold": 3,
    "meaning": "no functional failure (v0.1)",
-   "score": 23.2,
-   "lo": 18.8,
-   "hi": 28.2
+   "score": 32.7,
+   "lo": 27.7,
+   "hi": 38.1
   },
   "S4": {
    "threshold": 4,
    "meaning": "no material-risk failure",
-   "score": 38.2,
-   "lo": 33.0,
-   "hi": 43.8
+   "score": 54.2,
+   "lo": 48.6,
+   "hi": 59.7
   },
   "S5": {
    "threshold": 5,
    "meaning": "no critical failure",
-   "score": 38.2,
-   "lo": 33.0,
-   "hi": 43.8
+   "score": 54.6,
+   "lo": 49.0,
+   "hi": 60.1
   }
  },
  "design": {
@@ -184,7 +183,7 @@
    "false_accept": 5
   },
   "fail_at": 3,
-  "judge_model": "qwen2.5:7b",
+  "judge_model": "gemma2:9b",
   "speaker_model": "wespeaker_en_voxceleb_resnet34_LM",
   "speaker_threshold": 0.68,
   "latency_ms": {
@@ -204,5 +203,5 @@
   "max_context_turns": 8,
   "temperature": 0.7
  },
- "citation": "Inquesto v0.1 = 23.2% (95% CI 18.8\u201328.2; n = 306); views B 17 \u00b7 R 24 \u00b7 I 28 \u00b7 F 20"
+ "citation": "Inquesto v0.1 = 32.7% (95% CI 27.7\u201338.1; n = 306); views B 38 \u00b7 R 32 \u00b7 I 39 \u00b7 F 29"
 }

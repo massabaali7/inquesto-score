@@ -2,13 +2,13 @@
  "protocol": "inquesto-0.1",
  "agent": "BillingAgent",
  "agent_fingerprint": "sha256:0edac5b305c120dd",
- "score": 6.2,
+ "score": 6.5,
  "ci95": [
-  4.0,
-  9.5
+  4.3,
+  9.9
  ],
  "n": 306,
- "passed": 19,
+ "passed": 20,
  "views": {
   "behavior": {
    "score": 4.2,
@@ -23,14 +23,14 @@
    "hi": 11.2,
    "n": 204,
    "passed": 14,
-   "gap_vs_clean": -2.0
+   "gap_vs_clean": -1.0
   },
   "identity": {
-   "score": 11.1,
-   "lo": 3.1,
-   "hi": 32.8,
+   "score": 5.6,
+   "lo": 1.0,
+   "hi": 25.8,
    "n": 18,
-   "passed": 2,
+   "passed": 1,
    "false_accepts": 0,
    "false_rejects": 0
   },
@@ -44,12 +44,12 @@
    "worst_group": "us_female",
    "by_group": {
     "uk_female": {
-     "score": 5.3,
-     "lo": 2.1,
-     "hi": 12.9,
+     "score": 6.7,
+     "lo": 2.9,
+     "hi": 14.7,
      "n": 75,
-     "passed": 4,
-     "delta_vs_reference": 0.4
+     "passed": 5,
+     "delta_vs_reference": 1.8
     },
     "uk_male": {
      "score": 5.3,
@@ -81,7 +81,7 @@
  "failures_by_severity": {
   "S1": 0,
   "S2": 347,
-  "S3": 281,
+  "S3": 236,
   "S4": 7,
   "S5": 1
  },
@@ -89,21 +89,21 @@
   "slow_median": 306,
   "slow_turn": 154,
   "repeated_talk_over": 80,
-  "context_loss": 47,
   "talk_over": 41,
-  "promised_not_done": 4,
-  "wrong_info": 3,
-  "unverified_action": 1
+  "promised_not_done": 6,
+  "context_loss": 2,
+  "unverified_action": 1,
+  "wrong_info": 1
  },
  "audio_only": {
-  "failed": 287,
-  "failed_only_on_audio_events": 44,
-  "fraction": 0.153,
-  "score_if_transcript_only": 20.6
+  "failed": 286,
+  "failed_only_on_audio_events": 53,
+  "fraction": 0.185,
+  "score_if_transcript_only": 23.9
  },
  "aggregation_ablation": {
-  "mean_of_views": 6.8,
-  "geometric_mean_of_views": 6.3,
+  "mean_of_views": 5.4,
+  "geometric_mean_of_views": 5.3,
   "min_view": 4.2
  },
  "severity_sensitivity": {
@@ -117,23 +117,23 @@
   "S3": {
    "threshold": 3,
    "meaning": "no functional failure (v0.1)",
-   "score": 6.2,
-   "lo": 4.0,
-   "hi": 9.5
+   "score": 6.5,
+   "lo": 4.3,
+   "hi": 9.9
   },
   "S4": {
    "threshold": 4,
    "meaning": "no material-risk failure",
-   "score": 20.6,
-   "lo": 16.4,
-   "hi": 25.5
+   "score": 23.9,
+   "lo": 19.4,
+   "hi": 28.9
   },
   "S5": {
    "threshold": 5,
    "meaning": "no critical failure",
-   "score": 20.6,
-   "lo": 16.4,
-   "hi": 25.5
+   "score": 23.9,
+   "lo": 19.4,
+   "hi": 28.9
   }
  },
  "design": {
@@ -181,7 +181,7 @@
    "false_accept": 5
   },
   "fail_at": 3,
-  "judge_model": "qwen2.5:7b",
+  "judge_model": "gemma2:9b",
   "speaker_model": "wespeaker_en_voxceleb_resnet34_LM",
   "speaker_threshold": 0.68,
   "latency_ms": {
@@ -201,5 +201,5 @@
   "max_context_turns": 8,
   "temperature": 0.7
  },
- "citation": "Inquesto v0.1 = 6.2% (95% CI 4.0\u20139.5; n = 306); views B 4 \u00b7 R 7 \u00b7 I 11 \u00b7 F 5"
+ "citation": "Inquesto v0.1 = 6.5% (95% CI 4.3\u20139.9; n = 306); views B 4 \u00b7 R 7 \u00b7 I 6 \u00b7 F 5"
 }

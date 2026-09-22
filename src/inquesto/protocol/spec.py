@@ -61,7 +61,7 @@ SPEAKER_MODEL = "wespeaker_en_voxceleb_resnet34_LM"   # ONNX, via sherpa-onnx
 # this margin and are out of scope for v0.1.
 SPEAKER_THRESHOLD = 0.68
 
-JUDGE_MODEL = "qwen2.5:7b"       # one open judge, pinned; kappa vs humans reported per event
+JUDGE_MODEL = "gemma2:9b"        # one open judge, pinned; a different family from the caller and from every agent tested
 CALLER_MODEL = "qwen2.5:7b"
 
 # The account record every scenario runs against (the tool results the agent sees).

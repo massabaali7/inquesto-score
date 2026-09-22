@@ -37,7 +37,7 @@ source "$VENV/bin/activate"
 cd "${INQUESTO_REPO:-$HOME/vamos}"
 export INQUESTO_LLM_BASE_URL="http://127.0.0.1:$PORT/v1"
 export INQUESTO_CALLER_MODEL=${INQUESTO_CALLER_MODEL:-qwen2.5:7b}
-export INQUESTO_JUDGE_MODEL=${INQUESTO_JUDGE_MODEL:-qwen2.5:7b}
+export INQUESTO_JUDGE_MODEL=${INQUESTO_JUDGE_MODEL:-gemma2:9b}
 export INQUESTO_TTS_THREADS=${INQUESTO_TTS_THREADS:-8}
 # Hosted agent LLM (optional): keys live in a file only you can read, never in this script or the repo.
 #   ~/.config/inquesto/keys.env   e.g.  OPENAI_API_KEY=...  GEMINI_API_KEY=...  MISTRAL_API_KEY=...
