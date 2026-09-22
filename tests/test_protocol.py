@@ -168,3 +168,10 @@ def test_shards_partition_the_population(tmp_path):
         prun.run(program, tmp_path / "o", runtime="mock", limit=10, shard=(k, 3))
     assert len(list((tmp_path / "o" / "calls").glob("*.json"))) == 10
     assert prun.score_dir(tmp_path / "o")["n"] == 10
+
+
+def test_score_command_runs_end_to_end(tmp_path, capsys):
+    from inquesto.cli import main
+    rc = main(["score", "examples/protocol_agent/agent.py", "--runtime", "mock", "--limit", "5", "--out", str(tmp_path / "r")])
+    out = capsys.readouterr().out
+    assert rc == 0 and "Inquesto v0.1:" in out and (tmp_path / "r" / "inquesto-record.json").exists()

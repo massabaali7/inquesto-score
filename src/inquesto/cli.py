@@ -300,7 +300,7 @@ def cmd_score(args) -> int:
 
     program = _apply_overrides(_load_program(args.agent), args.set)
     out = Path(args.out) if args.out else Path("inquesto-runs") / program.name
-    args.out, args.action, args.only = str(out), "run", ""
+    args.out, args.action, args.only, args.shard = str(out), "run", "", ""
     print(f"  {D}Inquesto Protocol v{prun.spec.PROTOCOL.version} · agent {program.name} · runtime {args.runtime} · {out}{X}")
     return cmd_protocol(args)
 
