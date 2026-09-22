@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import sys
 import time
 from dataclasses import asdict
@@ -293,6 +294,77 @@ def cmd_protocol(args) -> int:
     return 0
 
 
+def cmd_score(args) -> int:
+    """inquesto score AGENT: run the protocol population and print the citation line."""
+    from .protocol import run as prun
+
+    program = _apply_overrides(_load_program(args.agent), args.set)
+    out = Path(args.out) if args.out else Path("inquesto-runs") / program.name
+    args.out, args.action, args.only = str(out), "run", ""
+    print(f"  {D}Inquesto Protocol v{prun.spec.PROTOCOL.version} · agent {program.name} · runtime {args.runtime} · {out}{X}")
+    return cmd_protocol(args)
+
+
+def cmd_setup(args) -> int:
+    """inquesto setup: fetch the models the protocol needs and check the LLM endpoint."""
+    import urllib.request
+
+    from .protocol import spec
+
+    ok = True
+    cache = Path(os.environ.get("INQUESTO_HOME", Path.home() / ".cache" / "inquesto"))
+    cache.mkdir(parents=True, exist_ok=True)
+    sv = cache / f"{spec.SPEAKER_MODEL}.onnx"
+    if sv.exists():
+        print(f"  {G}✓{X} speaker verifier {sv}")
+    else:
+        url = f"https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/{spec.SPEAKER_MODEL}.onnx"
+        print(f"  {D}downloading speaker verifier ({spec.SPEAKER_MODEL}) …{X}", flush=True)
+        try:
+            urllib.request.urlretrieve(url, sv)
+            print(f"  {G}✓{X} speaker verifier {sv}")
+        except Exception as e:  # noqa: BLE001
+            ok = False
+            print(f"  {R}✗{X} speaker verifier: {e}\n    fetch it by hand: curl -L -o {sv} {url}")
+    for mod, extra in (("pipecat", "pipecat-ai[silero,whisper]"), ("kokoro_onnx", "kokoro-onnx"), ("sherpa_onnx", "sherpa-onnx"), ("openai", "openai")):
+        try:
+            __import__(mod)
+            print(f"  {G}✓{X} {extra}")
+        except ImportError:
+            ok = False
+            print(f"  {R}✗{X} {extra} missing: pip install 'inquesto-score[audio]'")
+    base = os.environ.get("INQUESTO_LLM_BASE_URL", "http://127.0.0.1:11434/v1")
+    try:
+        with urllib.request.urlopen(f"{base}/models", timeout=5) as r:
+            ids = [m.get("id") for m in json.loads(r.read()).get("data", [])]
+        print(f"  {G}✓{X} LLM endpoint {base} ({len(ids)} models)")
+        for m in (spec.CALLER_MODEL, spec.JUDGE_MODEL):
+            if any(i == m or i.startswith(m) for i in ids):
+                print(f"  {G}✓{X} {m} available (caller/judge)")
+            else:
+                ok = False
+                print(f"  {R}✗{X} {m} not served by {base}: ollama pull {m}")
+    except Exception as e:  # noqa: BLE001
+        ok = False
+        print(f"  {R}✗{X} no OpenAI-compatible endpoint at {base} ({type(e).__name__}); start one, e.g. `ollama serve`, "
+              f"or set INQUESTO_LLM_BASE_URL")
+    if args.warm and ok:
+        print(f"  {D}warming Kokoro + Whisper (first run downloads them) …{X}", flush=True)
+        try:
+            from .adapters.pipecat import PipecatStack
+
+            st = PipecatStack(threads=4)
+            st.tts("hello", "af_heart", 1.0)
+            lst = st.listener(700, 0.5, "base")
+            lst.close()
+            print(f"  {G}✓{X} audio stack ready")
+        except Exception as e:  # noqa: BLE001
+            ok = False
+            print(f"  {R}✗{X} audio stack: {e}")
+    print(f"\n  {G if ok else R}{'ready: inquesto score examples/protocol_agent/agent.py' if ok else 'fix the items above, then run inquesto setup again'}{X}")
+    return 0 if ok else 1
+
+
 def cmd_list(args) -> int:
     print(f"\n{B}evaluators{X}  " + ", ".join(evaluators.available()))
     print(f"{B}testsets{X}    " + ", ".join(testsets.available()))
@@ -361,6 +433,18 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--only", default="", metavar="SUBSTR[,SUBSTR]", help="only calls whose key contains one of these (smoke tests)")
     pr.add_argument("--shard", default="", metavar="K/N", help="run every N-th call starting at K; shards may share --out")
     pr.set_defaults(func=cmd_protocol)
+
+    sc = sub.add_parser("score", help="score an agent under Inquesto Protocol v0.1 (the one command most people need)")
+    sc.add_argument("agent", help="path/to/agent.py[:Class] declaring a VoiceProgram")
+    sc.add_argument("--out", default=None, metavar="DIR", help="output directory (default inquesto-runs/<agent>; resumable)")
+    sc.add_argument("--runtime", default="pipecat", help="pipecat = real audio (default); local = transcript only")
+    sc.add_argument("--limit", type=int, default=0, metavar="N", help="only the first N calls (a smoke test)")
+    sc.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="config override, e.g. model=gpt-4.1-mini")
+    sc.set_defaults(func=cmd_score)
+
+    su = sub.add_parser("setup", help="download the protocol's models and check the LLM endpoint")
+    su.add_argument("--warm", action="store_true", help="also load Kokoro and Whisper once (downloads them)")
+    su.set_defaults(func=cmd_setup)
 
     ls = sub.add_parser("list", help="show available evaluators, testsets, runtimes")
     ls.set_defaults(func=cmd_list)

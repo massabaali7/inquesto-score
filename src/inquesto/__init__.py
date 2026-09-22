@@ -39,6 +39,7 @@ __all__ = [
     "inquesto_score",
     "optimize",
     "optimizers",
+    "score",
     "testsets",
 ]
 
@@ -52,3 +53,23 @@ def optimize(program, testset, metric: str = "task_success", constraints=None, *
     return CoordinateSearch().optimize(
         program, testset, metric=metric, constraints=constraints, **kw
     )
+
+
+def score(agent, out=None, runtime: str = "pipecat", limit: int = 0, **config):
+    """Score an agent under Inquesto Protocol v0.1 and return its record (dict).
+
+        from inquesto import VoiceProgram, score
+        class MyAgent(VoiceProgram):
+            task = "..."; tools = ["lookup_account", "verify_voice", "issue_refund"]
+        rec = score(MyAgent, model="gpt-4.1-mini")
+        print(rec["citation"])   # Inquesto v0.1: 31 ± 5 (B 29 · R 32 · I 17 · F 27), n = 306
+    """
+    from pathlib import Path
+
+    from .protocol import run as prun
+
+    program = agent() if isinstance(agent, type) else agent
+    if config:
+        program = program.with_config(**config)
+    out = Path(out) if out else Path("inquesto-runs") / program.name
+    return prun.run(program, out, runtime=runtime, limit=limit)

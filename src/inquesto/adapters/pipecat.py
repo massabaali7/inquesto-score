@@ -178,8 +178,12 @@ class SpeakerVerifier:
         from ..protocol import spec
 
         self.stack, self.spec = stack, spec
-        self.model_path = model_path or _env("INQUESTO_SPEAKER_MODEL",
-                                             str(Path(__file__).resolve().parents[3] / "models" / f"{spec.SPEAKER_MODEL}.onnx"))
+        cache = Path(_env("INQUESTO_HOME", str(Path.home() / ".cache" / "inquesto")))
+        repo_copy = Path(__file__).resolve().parents[3] / "models" / f"{spec.SPEAKER_MODEL}.onnx"
+        self.model_path = model_path or _env("INQUESTO_SPEAKER_MODEL") or str(
+            repo_copy if repo_copy.exists() else cache / f"{spec.SPEAKER_MODEL}.onnx")
+        if not Path(self.model_path).exists():
+            raise FileNotFoundError(f"speaker verifier not found at {self.model_path}; run `inquesto setup` once")
         self._ex = None
         self._enrolled: np.ndarray | None = None
 
