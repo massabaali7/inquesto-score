@@ -78,7 +78,10 @@ def kappa(a: list[int], b: list[int]) -> float | None:
     return None if pe == 1 else round((po - pe) / (1 - pe), 3)
 
 
-def compute(cal: pathlib.Path, out: pathlib.Path) -> None:
+def compute(cal: pathlib.Path, out: pathlib.Path, questions=None) -> list[str]:
+    """Per judged event: n, mean judge-vs-annotator Cohen's kappa (annotator-vs-annotator in
+    parentheses), and the judge's precision / recall averaged over annotators. With two annotators
+    a majority vote has no tie-break, so every annotator is compared with the judge separately."""
     judge = json.loads((cal / "judge_answers.json").read_text())
     files = [p for p in cal.glob("labels_*.csv") if "TEMPLATE" not in p.name]
     if not files:
@@ -89,22 +92,39 @@ def compute(cal: pathlib.Path, out: pathlib.Path) -> None:
             humans.append({r["idx"]: r for r in csv.DictReader(f)})
     out.mkdir(parents=True, exist_ok=True)
     lines = []
-    for k, _ in QUESTIONS:
-        idxs = [i for i in judge if all(i in h and h[i].get(k, "") in ("0", "1") for h in humans)]
-        if k == "context_loss":
-            idxs = [i for i in idxs if humans[0][i].get("correction") == "1"]
-        if k == "identity_wrong":
-            idxs = [i for i in idxs if humans[0][i].get("identity")]
-        # majority (or first) human label
-        hum = [int(round(sum(int(h[i][k]) for h in humans) / len(humans))) for i in idxs]
-        jud = [judge[i][k] for i in idxs]
-        tp = sum(1 for h, j in zip(hum, jud) if h and j); fp = sum(1 for h, j in zip(hum, jud) if j and not h); fn = sum(1 for h, j in zip(hum, jud) if h and not j)
-        prec = tp / (tp + fp) if tp + fp else None; rec = tp / (tp + fn) if tp + fn else None
-        inter = kappa([int(humans[0][i][k]) for i in idxs], [int(humans[1][i][k]) for i in idxs]) if len(humans) > 1 else None
-        f = lambda x: "--" if x is None else f"{x:.2f}"  # noqa: E731
-        lines.append(f"{k.replace('_', ' ')} & {len(idxs)} & {f(kappa(hum, jud))}" + (f" (h-h {f(inter)})" if inter is not None else "") + f" & {f(prec)} / {f(rec)} \\\\")
+    f = lambda x: "--" if x is None else f"{x:.2f}"
+    for k, _ in (questions or QUESTIONS):
+        per_h = []
+        for h in humans:
+            idxs = [i for i in judge if i in h and h[i].get(k, "") in ("0", "1")]
+            if k == "context_loss":
+                idxs = [i for i in idxs if h[i].get("correction") == "1"]
+            if k == "identity_wrong":
+                idxs = [i for i in idxs if h[i].get("identity")]
+            if not idxs:
+                continue
+            hum = [int(h[i][k]) for i in idxs]; jud = [judge[i][k] for i in idxs]
+            tp = sum(1 for a, b in zip(hum, jud) if a and b); fp = sum(1 for a, b in zip(hum, jud) if b and not a); fn = sum(1 for a, b in zip(hum, jud) if a and not b)
+            per_h.append((len(idxs), kappa(hum, jud), tp / (tp + fp) if tp + fp else None, tp / (tp + fn) if tp + fn else None))
+        if not per_h:
+            lines.append(f"{k.replace('_', ' ')} & 0 & -- & -- / -- \\\\")
+            continue
+        n = max(x[0] for x in per_h)
+        mean = lambda vals: (sum(v for v in vals if v is not None) / len([v for v in vals if v is not None])) if any(v is not None for v in vals) else None
+        kap = mean([x[1] for x in per_h]); prec = mean([x[2] for x in per_h]); rec = mean([x[3] for x in per_h])
+        hh = None
+        if len(humans) > 1:
+            idxs = [i for i in judge if all(i in h and h[i].get(k, "") in ("0", "1") for h in humans)]
+            if k == "context_loss":
+                idxs = [i for i in idxs if humans[0][i].get("correction") == "1"]
+            if k == "identity_wrong":
+                idxs = [i for i in idxs if humans[0][i].get("identity")]
+            if idxs:
+                hh = kappa([int(humans[0][i][k]) for i in idxs], [int(humans[1][i][k]) for i in idxs])
+        lines.append(f"{k.replace('_', ' ')} & {n} & {f(kap)}" + (f" ({f(hh)})" if hh is not None else "") + f" & {f(prec)} / {f(rec)} \\\\")
         print(lines[-1])
-    (out / "kappa_table.tex").write_text("\n".join(lines) + "\n")
+    (out / "kappa_rows.tex").write_text("\n".join(lines) + "\n")
+    return lines
 
 
 def main() -> int:

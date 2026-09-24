@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you report an Inquesto Score, please cite the protocol paper and state the protocol version."
-title: "Inquesto Score: a clean-success rate for voice agents with audio-grounded failure detection"
+title: "Inquesto Score: A Reliability Protocol for Voice Agents"
 authors:
   - family-names: Baali
     given-names: Massa
@@ -12,7 +12,7 @@ url: https://inquesto.ai
 license: Apache-2.0
 preferred-citation:
   type: conference-paper
-  title: "Inquesto Score: a clean-success rate for voice agents with audio-grounded failure detection"
+  title: "Inquesto Score: A Reliability Protocol for Voice Agents"
   authors:
     - family-names: Baali
       given-names: Massa

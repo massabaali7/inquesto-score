@@ -15,7 +15,7 @@
 
 The Inquesto Score is the rate of *clean successes* over a fixed, versioned population of 306 calls with real audio. A call is clean when the caller's goal was achieved **and** no failure event of severity S3 or above occurred. Timing failures (late replies, talking over the caller) are read from the audio, never from a transcript. Judged failures (context loss, wrong information, identity decisions) come from one pinned open model. Four *diagnostic views* of the same rate travel with the score and are never combined into it: **B**ehavior, **R**obustness, **I**dentity handling, **F**airness.
 
-Paper: *Inquesto Score: a clean-success rate for voice agents with audio-grounded failure detection* (Baali & Raj, ICASSP 2027, submitted). Specification: [docs/inquesto-score-v0.1.md](docs/inquesto-score-v0.1.md). Records for the 13 agents in the paper: [records/](records/).
+Paper: *Inquesto Score: A Reliability Protocol for Voice Agents* (Baali & Raj, ICASSP 2027, submitted). Specification: [docs/inquesto-score-v0.1.md](docs/inquesto-score-v0.1.md). Records for the 13 agents in the paper: [records/](records/).
 
 ## Get a score in three commands
 

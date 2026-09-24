@@ -175,6 +175,21 @@ def main() -> int:
         if ss:
             for t in (2, 4, 5):
                 macros.append(f"\\newcommand{{\\sensS{'two' if t == 2 else 'four' if t == 4 else 'five'}}}{{{fmt(sum(x[f'S{t}']['score'] - x['S3']['score'] for x in ss) / len(ss), 1)}}}")
+        # agreement between the pinned judge and the previous judge model, over every stored call
+        agree, tot = {}, {}
+        for run in ns.runs:
+            for f in (run / "calls").glob("*.json"):
+                m = json.loads(f.read_text())["conversation"]["metadata"]
+                new_v, prevs = m.get("verdicts") or {}, m.get("verdicts_prev") or []
+                if not prevs:
+                    continue
+                prev = prevs[-1]
+                for k in ("goal_achieved", "wrong_info", "context_loss"):
+                    if k in prev and k in new_v:
+                        tot[k] = tot.get(k, 0) + 1
+                        agree[k] = agree.get(k, 0) + int(bool(prev[k]) == bool(new_v[k]))
+        for k, name in (("goal_achieved", "jjgoal"), ("wrong_info", "jjwrong"), ("context_loss", "jjcontext")):
+            macros.append(f"\\newcommand{{\\{name}}}{{{fmt(100 * agree[k] / tot[k]) if tot.get(k) else '--'}}}")
         hosted = [r for _, r in recs if "$^h$" in _]
         macros.append(f"\\newcommand{{\\nhosted}}{{{len(hosted)}}}")
         worst_gap = min((r["views"]["fairness"].get("delta_vs_reference") for _, r in recs if r["views"]["fairness"].get("delta_vs_reference") is not None), default=None)
