@@ -20,7 +20,7 @@ Paper: *Inquesto Score: A Reliability Protocol for Voice Agents* (Baali & Raj, a
 ## Get a score in three commands
 
 ```bash
-pip install "inquesto-score[audio]"      # Python 3.10+  (until the PyPI release: pip install "inquesto-score[audio] @ git+https://github.com/inquesto-ai/inquesto-score")
+pip install "inquesto-score[audio]"      # Python 3.10+  (until the PyPI release: pip install "inquesto-score[audio] @ git+https://github.com/massabaali7/inquesto-score")
 inquesto setup                            # downloads the verifier, checks your LLM endpoint
 inquesto score my_agent.py                # 306 calls later: the citation line + inquesto-runs/<agent>/inquesto-record.json
 ```
