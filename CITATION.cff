@@ -5,6 +5,9 @@ authors:
   - family-names: Baali
     given-names: Massa
     affiliation: Carnegie Mellon University
+  - family-names: Raj
+    given-names: Bhiksha
+    affiliation: Carnegie Mellon University
 version: "0.1"
 date-released: 2026-09-23
 repository-code: https://github.com/massabaali7/inquesto-score
@@ -16,4 +19,6 @@ preferred-citation:
   authors:
     - family-names: Baali
       given-names: Massa
+    - family-names: Raj
+      given-names: Bhiksha
   year: 2026
