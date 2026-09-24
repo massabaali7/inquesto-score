@@ -288,7 +288,8 @@ def cmd_protocol(args) -> int:
         if args.shard:
             k, n = args.shard.split("/")
             shard = (int(k), int(n))
-        rec = prun.run(program, out, runtime=args.runtime, limit=args.limit, on_call=on_call, only=only or None, shard=shard)
+        rec = prun.run(program, out, runtime=args.runtime, limit=args.limit, on_call=on_call, only=only or None, shard=shard,
+                       population_path=getattr(args, "scenarios", None) or None)
     v = rec["views"]
     print(f"\n{B}{rec['citation']}{X}")
     for k in ("behavior", "robustness", "identity", "fairness"):
@@ -310,6 +311,8 @@ def cmd_score(args) -> int:
     program = _apply_overrides(_load_program(args.agent), args.set)
     out = Path(args.out) if args.out else Path("inquesto-runs") / program.name
     args.out, args.action, args.only, args.shard = str(out), "run", "", ""
+    if args.scenarios:
+        print(f"  {D}scenario set: {args.scenarios}{X}")
     print(f"  {D}Inquesto Protocol v{prun.spec.PROTOCOL.version} · agent {program.name} · runtime {args.runtime} · {out}{X}")
     return cmd_protocol(args)
 
@@ -442,6 +445,7 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="config override, e.g. model=qwen2.5:7b")
     pr.add_argument("--only", default="", metavar="SUBSTR[,SUBSTR]", help="only calls whose key contains one of these (smoke tests)")
     pr.add_argument("--shard", default="", metavar="K/N", help="run every N-th call starting at K; shards may share --out")
+    pr.add_argument("--scenarios", default="", metavar="PATH", help="your own scenario set (Testset JSON)")
     pr.set_defaults(func=cmd_protocol)
 
     sc = sub.add_parser("score", help="score an agent under Inquesto Protocol v0.1 (the one command most people need)")
@@ -450,6 +454,7 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--runtime", default="pipecat", help="pipecat = real audio (default); local = transcript only")
     sc.add_argument("--limit", type=int, default=0, metavar="N", help="only the first N calls (a smoke test)")
     sc.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="config override, e.g. model=gpt-4.1-mini")
+    sc.add_argument("--scenarios", default="", metavar="PATH", help="your own scenario set (Testset JSON) instead of the built-in billing population")
     sc.set_defaults(func=cmd_score)
 
     su = sub.add_parser("setup", help="download the protocol's models and check the LLM endpoint")

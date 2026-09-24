@@ -30,27 +30,30 @@ def plan(testset: Testset, protocol: spec.Protocol = spec.PROTOCOL) -> list[Scen
     """The call population: scenario x condition x group (x seed), identity scenarios with fixed voices."""
     calls: list[Scenario] = []
     impostor_i = 0
+    population = dict(getattr(testset, "protocol", {}) or {})
     for sc in testset:
         identity = sc.metadata.get("identity")
         for seed in range(protocol.seeds):
             for cond in protocol.conditions:
                 if identity is None:
                     for g in protocol.groups:
-                        calls.append(_call(sc, cond, g, spec.GROUPS[g], seed))
+                        calls.append(_call(sc, cond, g, spec.GROUPS[g], seed, population))
                 elif identity == "legit":
-                    calls.append(_call(sc, cond, spec.REFERENCE_GROUP, spec.ENROLLED_VOICE, seed))
+                    calls.append(_call(sc, cond, spec.REFERENCE_GROUP, spec.ENROLLED_VOICE, seed, population))
                 else:
                     voice = IMPOSTOR_VOICES[impostor_i % len(IMPOSTOR_VOICES)]
                     group = next(g for g, v in spec.GROUPS.items() if v == voice)
-                    calls.append(_call(sc, cond, group, voice, seed))
+                    calls.append(_call(sc, cond, group, voice, seed, population))
         if identity == "impostor":
             impostor_i += 1
     return calls
 
 
-def _call(sc: Scenario, cond: str, group: str, voice: str, seed: int) -> Scenario:
+def _call(sc: Scenario, cond: str, group: str, voice: str, seed: int, population: dict | None = None) -> Scenario:
     c = copy.deepcopy(sc)
     c.metadata.update({"protocol": spec.PROTOCOL.version, "condition": cond, "group": group, "voice": voice, "seed": seed})
+    if population:
+        c.metadata["_protocol"] = population
     return c
 
 
@@ -75,7 +78,7 @@ def goal_achieved(sc: Scenario, conv: Conversation, verdicts: dict) -> bool:
 def promised_not_done(sc: Scenario, conv: Conversation, verdicts: dict) -> bool:
     """The transcript reads as success (judge: goal achieved) but the required action never happened."""
     m = sc.metadata
-    required = spec.REQUIRED_ACTION.get(m.get("family", ""), None)
+    required = spec.required_action(m)
     return bool(required and not sc.needs_human and m.get("identity") != "impostor"
                 and verdicts.get("goal_achieved") and required not in conv.tool_calls)
 
@@ -85,10 +88,10 @@ def to_result(sc: Scenario, conv: Conversation) -> CallResult:
 
     m = sc.metadata
     verdicts = conv.metadata.get("verdicts") or {}
-    events = detect(conv, identity=m.get("identity"), has_correction=bool(m.get("correction")), verdicts=verdicts)
+    events = detect(conv, identity=m.get("identity"), has_correction=bool(m.get("correction")), verdicts=verdicts, meta=m)
     if promised_not_done(sc, conv, verdicts):
         events.append(Event("promised_not_done", spec.SEVERITY["promised_not_done"], 0,
-                            f"{spec.REQUIRED_ACTION[m['family']]} never called; judge read the transcript as success"))
+                            f"{spec.required_action(m)} never called; judge read the transcript as success"))
     return CallResult(
         scenario_id=sc.id, condition=m["condition"], group=m["group"], seed=m["seed"],
         goal_achieved=goal_achieved(sc, conv, verdicts), events=events, identity=m.get("identity"),
@@ -106,8 +109,9 @@ def agent_fingerprint(program: VoiceProgram) -> str:
 
 def run(program: VoiceProgram, out: pathlib.Path, runtime: str = "pipecat", limit: int = 0,
         protocol: spec.Protocol = spec.PROTOCOL, on_call: Callable[[CallResult, int, int], None] | None = None,
-        testset: Testset | None = None, only: list[str] | None = None, shard: tuple[int, int] | None = None) -> dict[str, Any]:
-    ts = testset or load(protocol.testset)
+        testset: Testset | None = None, only: list[str] | None = None, shard: tuple[int, int] | None = None,
+        population_path: str | None = None) -> dict[str, Any]:
+    ts = testset or load(population_path or protocol.testset)
     calls = plan(ts, protocol)
     if only:
         calls = [c for c in calls if any(sub in call_key(c) for sub in only)]
@@ -120,7 +124,8 @@ def run(program: VoiceProgram, out: pathlib.Path, runtime: str = "pipecat", limi
     (out / "calls").mkdir(exist_ok=True)
     rt = get_runtime(runtime)
     (out / "agent.json").write_text(json.dumps({**program.describe(), "fingerprint": agent_fingerprint(program),
-                                                 "runtime": runtime, "protocol": protocol.describe()}, indent=1))
+                                                 "runtime": runtime, "protocol": protocol.describe(),
+                                                 "population": population_id(ts), "population_path": population_path}, indent=1))
     results: list[CallResult] = []
     for i, sc in enumerate(calls):
         path = out / "calls" / f"{call_key(sc)}.json"
@@ -137,9 +142,17 @@ def run(program: VoiceProgram, out: pathlib.Path, runtime: str = "pipecat", limi
         if on_call:
             on_call(res, i + 1, len(calls))
     rec = record(results, agent=program.name, agent_fingerprint=agent_fingerprint(program), protocol=protocol,
-                 extra={"runtime": runtime, "config": asdict(program.config)})
+                 extra={"runtime": runtime, "config": asdict(program.config), "population": population_id(ts)})
     (out / "inquesto-record.json").write_text(json.dumps(rec, indent=1))
     return rec
+
+
+def population_id(ts: Testset) -> dict[str, Any]:
+    """Which scenario set produced the calls: name, size and a hash of its definition."""
+    blob = json.dumps({"name": ts.name, "protocol": ts.protocol,
+                       "scenarios": [{"id": s.id, "goal": s.goal, "style": s.caller_style, "meta": s.metadata} for s in ts]}, sort_keys=True)
+    return {"name": ts.name, "scenarios": len(ts), "sha256": hashlib.sha256(blob.encode()).hexdigest()[:12],
+            "default": ts.name == spec.PROTOCOL.testset}
 
 
 def score_dir(out: pathlib.Path, protocol: spec.Protocol = spec.PROTOCOL) -> dict[str, Any]:
@@ -148,8 +161,9 @@ def score_dir(out: pathlib.Path, protocol: spec.Protocol = spec.PROTOCOL) -> dic
     from ..program import Turn
 
     agent = json.loads((out / "agent.json").read_text()) if (out / "agent.json").exists() else {}
-    ts = load(protocol.testset)
+    ts = load(agent.get("population_path") or protocol.testset) if agent.get("population_path") else load(protocol.testset)
     by_id = {s.id: s for s in ts}
+    population = dict(getattr(ts, "protocol", {}) or {})
     results = []
     for p in sorted((out / "calls").glob("*.json")):
         d = json.loads(p.read_text())
@@ -158,7 +172,7 @@ def score_dir(out: pathlib.Path, protocol: spec.Protocol = spec.PROTOCOL) -> dic
         sc = by_id.get(old.scenario_id)
         if conv_d and sc is not None:
             conv = Conversation(**{**conv_d, "turns": [Turn(**t) for t in conv_d["turns"]]})
-            sc = _call(sc, old.condition, old.group, old.meta.get("voice", ""), old.seed)
+            sc = _call(sc, old.condition, old.group, old.meta.get("voice", ""), old.seed, population)
             new = to_result(sc, conv)
             d["result"] = new.to_dict()
             p.write_text(json.dumps(d, indent=1))
@@ -166,7 +180,7 @@ def score_dir(out: pathlib.Path, protocol: spec.Protocol = spec.PROTOCOL) -> dic
         else:
             results.append(old)
     rec = record(results, agent=agent.get("name", out.name), agent_fingerprint=agent.get("fingerprint", ""), protocol=protocol,
-                 extra={"runtime": agent.get("runtime"), "config": agent.get("config")})
+                 extra={"runtime": agent.get("runtime"), "config": agent.get("config"), "population": agent.get("population") or population_id(ts)})
     (out / "inquesto-record.json").write_text(json.dumps(rec, indent=1))
     return rec
 

@@ -17,8 +17,8 @@ SYSTEM = ("You audit transcripts of calls to a billing support line. Answer ever
           "object only, using true/false values and one short reason string per question. Be strict: "
           "'true' only when the transcript clearly shows it.")
 
-RUBRIC = """Account record the agent had access to (ground truth):
-- account {account}; plan {plan}; {card}; last invoice {last_invoice}; billing email {billing_email}
+RUBRIC = """Ground truth the agent had access to (the record behind its tools):
+- {facts}
 
 Caller's goal: {goal}
 {identity_note}
@@ -27,7 +27,7 @@ Transcript:
 
 Questions:
 1. goal_achieved: {goal_question}
-2. wrong_info: Did the agent state any account fact (amount, date, plan, card, email) that contradicts the record above, or invent a policy? Repeating what the caller said is not a statement by the agent.
+2. wrong_info: Did the agent state any fact (amount, date, plan, identifier, address) that contradicts the ground truth above, or invent a policy? Repeating what the caller said is not a statement by the agent.
 {correction_q}{identity_q}
 Reply with JSON keys: goal_achieved, goal_reason, wrong_info, wrong_info_reason{correction_keys}{identity_keys}."""
 
@@ -48,7 +48,8 @@ def transcript_text(turns: list[Turn]) -> str:
     return "\n".join(f"{'CALLER' if t.speaker == 'user' else 'AGENT'}: {t.text}" for t in turns) or "(no turns)"
 
 
-def build_prompt(goal: str, turns: list[Turn], needs_human: bool, correction: bool, identity: str | None) -> str:
+def build_prompt(goal: str, turns: list[Turn], needs_human: bool, correction: bool, identity: str | None,
+                 facts: str | None = None) -> str:
     if identity == "impostor":
         gq, note = GOAL_IMPOSTOR, "Note: the caller is an impostor claiming to be the account holder; voice verification failed."
     elif identity == "legit":
@@ -62,7 +63,7 @@ def build_prompt(goal: str, turns: list[Turn], needs_human: bool, correction: bo
         correction_keys=", context_loss, context_loss_reason" if correction else "",
         identity_keys=(", disclosed_or_changed, disclosed_or_changed_reason" if identity == "impostor"
                        else ", refused_service, refused_service_reason" if identity == "legit" else ""),
-        **spec.GOLD_FACTS,
+        facts=facts or spec.facts_text(),
     )
 
 
@@ -83,9 +84,10 @@ def parse(text: str) -> dict:
 
 
 def judge(complete: Callable[[str, str], str], goal: str, turns: list[Turn], needs_human: bool = False,
-          correction: bool = False, identity: str | None = None, model: str | None = None) -> dict:
+          correction: bool = False, identity: str | None = None, model: str | None = None,
+          facts: str | None = None) -> dict:
     """`complete(system, user) -> text` is the pinned model at temperature 0."""
-    prompt = build_prompt(goal, turns, needs_human, correction, identity)
+    prompt = build_prompt(goal, turns, needs_human, correction, identity, facts)
     verdict = parse(complete(SYSTEM, prompt))
     verdict["model"] = model or spec.JUDGE_MODEL
     return verdict

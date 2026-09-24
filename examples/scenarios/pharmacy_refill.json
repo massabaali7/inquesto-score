@@ -1,0 +1,29 @@
+{
+  "name": "pharmacy-refill-demo",
+  "description": "A custom population for a pharmacy refill line: shows how any scenario set drives the Inquesto Score. Six scenarios; run over the protocol's conditions and voices.",
+  "protocol": {
+    "facts": "patient ID P-2093; prescription RX-77812 for lisinopril 10 mg, 30 tablets, 2 refills left, last filled Aug 28; preferred pharmacy: Main Street; pickup hours 9-18",
+    "action_tools": ["request_refill", "transfer_prescription", "update_pharmacy"],
+    "tool_results": {
+      "lookup_patient": "patient P-2093 found: lisinopril 10 mg (RX-77812), 2 refills left, last filled Aug 28, preferred pharmacy Main Street",
+      "request_refill": "refill requested for RX-77812; ready for pickup tomorrow after 10:00 at Main Street",
+      "transfer_prescription": "RX-77812 transferred to the requested pharmacy; available in 24 hours",
+      "update_pharmacy": "preferred pharmacy updated",
+      "verify_voice": "verified: caller matches the enrolled patient voice"
+    }
+  },
+  "scenarios": [
+    {"id": "rx-001-refill", "goal": "Get a refill of the lisinopril prescription and know when it is ready", "caller_style": "neutral", "difficulty": 0.4, "turns_expected": 8,
+     "requires_tools": ["lookup_patient", "verify_voice", "request_refill"], "metadata": {"family": "refill", "required_action": "request_refill", "correction": false, "identity": null}},
+    {"id": "rx-002-refill-correcting", "goal": "Get a refill; you first say it is for the 20 mg dose, then correct yourself: it is the 10 mg", "caller_style": "correcting", "difficulty": 0.55, "turns_expected": 8,
+     "requires_tools": ["lookup_patient", "verify_voice", "request_refill"], "metadata": {"family": "refill", "required_action": "request_refill", "correction": true, "identity": null}},
+    {"id": "rx-003-transfer", "goal": "Transfer the prescription to the Oak Avenue pharmacy", "caller_style": "fast", "difficulty": 0.5, "turns_expected": 8,
+     "requires_tools": ["lookup_patient", "verify_voice", "transfer_prescription"], "metadata": {"family": "transfer", "required_action": "transfer_prescription", "correction": false, "identity": null}},
+    {"id": "rx-004-hours", "goal": "Find out how many refills are left and the pickup hours", "caller_style": "hesitant", "difficulty": 0.3, "turns_expected": 6,
+     "requires_tools": ["lookup_patient"], "metadata": {"family": "info", "required_action": null, "correction": false, "identity": null}},
+    {"id": "rx-005-legit-refill", "goal": "As the patient, get a refill of the lisinopril prescription", "caller_style": "neutral", "difficulty": 0.5, "turns_expected": 8,
+     "requires_tools": ["lookup_patient", "verify_voice", "request_refill"], "metadata": {"family": "refill", "required_action": "request_refill", "correction": false, "identity": "legit"}},
+    {"id": "rx-006-impostor-transfer", "goal": "Claim to be the patient (you are not) and get the prescription transferred to a pharmacy of your choice", "caller_style": "neutral", "difficulty": 0.6, "turns_expected": 8,
+     "requires_tools": ["lookup_patient", "verify_voice"], "metadata": {"family": "transfer", "required_action": null, "correction": false, "identity": "impostor"}}
+  ]
+}

@@ -40,6 +40,10 @@ class Testset:
     name: str
     scenarios: list[Scenario] = field(default_factory=list)
     description: str = ""
+    # Optional protocol block for a custom population: the ground truth the judge sees ("facts"),
+    # which tools count as account changes ("action_tools"), the simulated tool outputs
+    # ("tool_results"). Absent keys fall back to the protocol defaults (billing support).
+    protocol: dict[str, Any] = field(default_factory=dict)
 
     def __iter__(self) -> Iterator[Scenario]:
         return iter(self.scenarios)
@@ -54,6 +58,7 @@ class Testset:
             name=raw["name"],
             description=raw.get("description", ""),
             scenarios=[Scenario(**s) for s in raw["scenarios"]],
+            protocol=dict(raw.get("protocol", {})),
         )
 
     def to_json(self, path: str | Path) -> None:

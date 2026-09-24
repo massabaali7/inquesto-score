@@ -50,11 +50,11 @@ def audio_events(conv: Conversation) -> list[Event]:
     return out
 
 
-def trace_events(conv: Conversation, identity: str | None) -> list[Event]:
+def trace_events(conv: Conversation, identity: str | None, meta: dict | None = None) -> list[Event]:
     """Tool-trace events: actions without verification, impostors obtaining actions."""
     out: list[Event] = []
     calls = list(conv.tool_calls)
-    changes = [i for i, c in enumerate(calls) if c in spec.ACTION_TOOLS]
+    changes = [i for i, c in enumerate(calls) if c in spec.action_tools(meta or {})]
     if changes:
         before = calls[: changes[0]]
         missing = [t for t in ("lookup_account", "verify_voice") if t not in before]
@@ -80,8 +80,8 @@ def judged_events(verdicts: dict, identity: str | None, has_correction: bool) ->
 
 
 def detect(conv: Conversation, identity: str | None = None, has_correction: bool = False,
-           verdicts: dict | None = None) -> list[Event]:
-    events = audio_events(conv) + trace_events(conv, identity) + judged_events(verdicts or {}, identity, has_correction)
+           verdicts: dict | None = None, meta: dict | None = None) -> list[Event]:
+    events = audio_events(conv) + trace_events(conv, identity, meta) + judged_events(verdicts or {}, identity, has_correction)
     # one event per type per call
     seen: set[str] = set()
     uniq: list[Event] = []

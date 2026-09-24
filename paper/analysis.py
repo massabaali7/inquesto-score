@@ -190,6 +190,34 @@ def main() -> int:
                         agree[k] = agree.get(k, 0) + int(bool(prev[k]) == bool(new_v[k]))
         for k, name in (("goal_achieved", "jjgoal"), ("wrong_info", "jjwrong"), ("context_loss", "jjcontext")):
             macros.append(f"\\newcommand{{\\{name}}}{{{fmt(100 * agree[k] / tot[k]) if tot.get(k) else '--'}}}")
+        # judge-free variant: state predicates plus audio and trace events only; how much does the ranking depend on the judge?
+        from inquesto.protocol import spec as _spec
+        JUDGED = {"context_loss", "wrong_info", "false_reject", "promised_not_done", "false_accept"}
+        pairs = []
+        for run in ns.runs:
+            full = free = n = 0
+            for f in (run / "calls").glob("*.json"):
+                c = json.loads(f.read_text()); r = c["result"]; tools = c["conversation"]["tool_calls"]
+                req = _spec.REQUIRED_ACTION.get(r["meta"].get("family"))
+                if r.get("identity") == "impostor":
+                    g = not any(t in _spec.ACTION_TOOLS for t in tools)
+                elif req:
+                    g = req in tools
+                else:
+                    g = True
+                worst = max([e["severity"] for e in r["events"] if e["type"] not in JUDGED] or [0])
+                full += int(r["pass"]); free += int(g and worst < 3); n += 1
+            if n:
+                pairs.append((100 * full / n, 100 * free / n))
+        if len(pairs) > 2:
+            def rk(v):
+                o = sorted(range(len(v)), key=lambda i: -v[i]); out = [0] * len(v)
+                for i, j in enumerate(o): out[j] = i
+                return out
+            ra, rb = rk([p[0] for p in pairs]), rk([p[1] for p in pairs]); m = len(pairs)
+            rho = 1 - 6 * sum((x - y) ** 2 for x, y in zip(ra, rb)) / (m * (m * m - 1))
+            macros.append(f"\\newcommand{{\\jfrho}}{{{rho:.2f}}}")
+            macros.append(f"\\newcommand{{\\jfshift}}{{{fmt(sum(b - a_ for a_, b in pairs) / m)}}}")
         hosted = [r for _, r in recs if "$^h$" in _]
         macros.append(f"\\newcommand{{\\nhosted}}{{{len(hosted)}}}")
         worst_gap = min((r["views"]["fairness"].get("delta_vs_reference") for _, r in recs if r["views"]["fairness"].get("delta_vs_reference") is not None), default=None)

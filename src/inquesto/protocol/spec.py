@@ -101,3 +101,27 @@ class Protocol:
 
 
 PROTOCOL = Protocol()
+
+
+# --- per-population overrides -------------------------------------------------------------
+# A custom scenario set may carry its own facts, action tools and tool results (Testset.protocol).
+# The runner copies that block into every call's metadata under "_protocol"; these helpers read it.
+
+def action_tools(meta: dict) -> tuple[str, ...]:
+    p = meta.get("_protocol") or {}
+    return tuple(p.get("action_tools") or ACTION_TOOLS)
+
+
+def required_action(meta: dict) -> str | None:
+    if "required_action" in meta:
+        return meta["required_action"]
+    return REQUIRED_ACTION.get(meta.get("family", ""), None)
+
+
+def facts_text(meta: dict | None = None) -> str:
+    p = (meta or {}).get("_protocol") or {}
+    if p.get("facts"):
+        f = p["facts"]
+        return f if isinstance(f, str) else "; ".join(f"{k}: {v}" for k, v in f.items())
+    g = GOLD_FACTS
+    return f"account {g['account']}; plan {g['plan']}; {g['card']}; last invoice {g['last_invoice']}; billing email {g['billing_email']}"

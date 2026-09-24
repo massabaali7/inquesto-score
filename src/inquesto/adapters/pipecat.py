@@ -304,6 +304,7 @@ class PipecatRuntime:
         identity = meta.get("identity")
         sv_score: float | None = None
         text.tool_overrides = {}
+        text.population_tools = dict((meta.get("_protocol") or {}).get("tool_results") or {})
         agent_hist: list[dict] = []
         caller_hist: list[dict] = [
             {"role": "user", "content": "(The line connects. State your issue to the agent.)"}

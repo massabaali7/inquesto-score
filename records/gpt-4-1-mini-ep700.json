@@ -191,7 +191,7 @@
    "s3_turn": 3000
   }
  },
- "evaluated_at": "2026-09-21",
+ "evaluated_at": "2026-09-23",
  "runtime": "pipecat",
  "config": {
   "model": "gpt-4.1-mini",

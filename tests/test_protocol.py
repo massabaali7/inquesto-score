@@ -176,3 +176,27 @@ def test_score_command_runs_end_to_end(tmp_path, capsys):
     rc = main(["score", "examples/protocol_agent/agent.py", "--runtime", "mock", "--limit", "5", "--out", str(tmp_path / "r")])
     out = capsys.readouterr().out
     assert rc == 0 and "Inquesto v0.1 =" in out and (tmp_path / "r" / "inquesto-record.json").exists()
+
+
+def test_any_scenario_set_drives_the_score(tmp_path, capsys):
+    """A custom population (other domain, other tools, other facts) scores through the same protocol."""
+    from inquesto.cli import main
+    from inquesto.protocol import run as prun
+    from inquesto.protocol.judge import build_prompt
+    from inquesto.protocol.spec import action_tools, facts_text, required_action
+    from inquesto.testsets import load
+    ts = load("examples/scenarios/pharmacy_refill.json")
+    calls = prun.plan(ts)
+    assert len(calls) == 4 * 3 * 4 + 2 * 3
+    m = calls[0].metadata
+    assert action_tools(m) == ("request_refill", "transfer_prescription", "update_pharmacy")
+    assert required_action(m) == "request_refill" and "lisinopril" in facts_text(m)
+    assert "lisinopril" in build_prompt("x", [], False, False, None, facts=facts_text(m))
+    rc = main(["score", "examples/pharmacy_agent/agent.py", "--runtime", "mock", "--limit", "8",
+               "--scenarios", "examples/scenarios/pharmacy_refill.json", "--out", str(tmp_path / "rx")])
+    out = capsys.readouterr().out
+    assert rc == 0 and "Inquesto v0.1/pharmacy-refill-demo =" in out
+    import json
+    rec = json.loads((tmp_path / "rx" / "inquesto-record.json").read_text())
+    assert rec["population"]["name"] == "pharmacy-refill-demo" and rec["population"]["default"] is False and len(rec["population"]["sha256"]) == 12
+    assert prun.score_dir(tmp_path / "rx")["population"]["name"] == "pharmacy-refill-demo"

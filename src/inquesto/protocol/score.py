@@ -169,9 +169,11 @@ def citation_line(rec: dict[str, Any]) -> str:
     v = rec["views"]
     s = lambda k: "—" if v[k]["score"] is None else f"{v[k]['score']:.0f}"
     ver = rec["protocol"].split("-")[-1]
+    pop = rec.get("population") or {}
+    tag = f"v{ver}" if pop.get("default", True) else f"v{ver}/{pop.get('name')}"
     if rec["score"] is None:
-        return f"Inquesto v{ver} = n/a (n = {rec['n']})"
-    return (f"Inquesto v{ver} = {rec['score']:.1f}% (95% CI {rec['ci95'][0]:.1f}–{rec['ci95'][1]:.1f}; n = {rec['n']}); "
+        return f"Inquesto {tag} = n/a (n = {rec['n']})"
+    return (f"Inquesto {tag} = {rec['score']:.1f}% (95% CI {rec['ci95'][0]:.1f}–{rec['ci95'][1]:.1f}; n = {rec['n']}); "
             f"views B {s('behavior')} · R {s('robustness')} · I {s('identity')} · F {s('fairness')}")
 
 

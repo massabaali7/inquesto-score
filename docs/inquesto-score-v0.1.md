@@ -188,3 +188,8 @@ worst-group views, and a versioning contract.
    measured on a stub or deferred to v0.2 (say so in the paper).  (No add identity piece of cake we've already worked in this)
 6. Judge: one open model pinned by version; κ reported. (yes) — pinned to Gemma-2-9B, distinct from the caller (Qwen2.5-7B) and from every agent tested.
 7. CI mandatory. (yes)
+
+
+## 11. Any scenario set (added 2026-09-23)
+
+A Testset JSON may carry a `protocol` block (`facts`, `action_tools`, `tool_results`) and per-scenario `metadata.required_action`; `inquesto score AGENT --scenarios PATH` runs it over the same conditions, voices, verifier and judge. The record's `population` field names the set and hashes its definition; the citation line reads `Inquesto v0.1/<name> = …`. Example: `examples/scenarios/pharmacy_refill.json`.

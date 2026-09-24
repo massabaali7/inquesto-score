@@ -55,13 +55,14 @@ def optimize(program, testset, metric: str = "task_success", constraints=None, *
     )
 
 
-def score(agent, out=None, runtime: str = "pipecat", limit: int = 0, **config):
+def score(agent, out=None, runtime: str = "pipecat", limit: int = 0, scenarios: str | None = None, **config):
     """Score an agent under Inquesto Protocol v0.1 and return its record (dict).
 
         from inquesto import VoiceProgram, score
         class MyAgent(VoiceProgram):
             task = "..."; tools = ["lookup_account", "verify_voice", "issue_refund"]
-        rec = score(MyAgent, model="gpt-4.1-mini")
+        rec = score(MyAgent, model="gpt-4.1-mini")                 # the built-in billing population
+        rec = score(MyAgent, scenarios="my_scenarios.json")        # your own scenario set
         print(rec["citation"])   # Inquesto v0.1: 31 ± 5 (B 29 · R 32 · I 17 · F 27), n = 306
     """
     from pathlib import Path
@@ -72,4 +73,4 @@ def score(agent, out=None, runtime: str = "pipecat", limit: int = 0, **config):
     if config:
         program = program.with_config(**config)
     out = Path(out) if out else Path("inquesto-runs") / program.name
-    return prun.run(program, out, runtime=runtime, limit=limit)
+    return prun.run(program, out, runtime=runtime, limit=limit, population_path=scenarios)

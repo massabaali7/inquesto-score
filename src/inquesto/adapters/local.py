@@ -196,6 +196,7 @@ class LocalRuntime:
         self._client = None
         self._supports_stream_usage = True
         self.tool_overrides: dict[str, str] = {}  # per-call tool results, e.g. verify_voice
+        self.population_tools: dict[str, str] = {}  # a custom scenario set's simulated tool outputs
         # The agent under test may live behind a different endpoint (a hosted LLM) than the
         # protocol's caller and judge, which stay on the pinned local models.
         self.agent_base_url = _env("INQUESTO_AGENT_BASE_URL")
@@ -326,7 +327,7 @@ class LocalRuntime:
                 break
             name = m.group(1)
             tool_calls.append(name)
-            result = self.tool_overrides.get(name) or TOOL_RESULTS.get(name, f"error: unknown tool {name}")
+            result = self.tool_overrides.get(name) or self.population_tools.get(name) or TOOL_RESULTS.get(name, f"error: unknown tool {name}")
             agent_hist.append({"role": "user", "content": f"[tool result] {name}: {result}"})
         if latency is None:
             latency = int((time.perf_counter() - t0) * 1000)
@@ -357,8 +358,11 @@ class LocalRuntime:
         def complete(system: str, user: str) -> str:
             return self._complete(model, system, [{"role": "user", "content": user}], 0.0, seed).text
 
+        from ..protocol import spec as pspec
+
         return pj.judge(complete, scenario.goal, turns, needs_human=scenario.needs_human,
-                        correction=bool(meta.get("correction")), identity=meta.get("identity"), model=model)
+                        correction=bool(meta.get("correction")), identity=meta.get("identity"), model=model,
+                        facts=pspec.facts_text(meta))
 
     def judge(self, scenario: Scenario, turns: list[Turn], seed: int) -> tuple[bool, str]:
         """Ask the judge model whether the caller's goal was met; returns (ok, verdict)."""
@@ -382,6 +386,7 @@ class LocalRuntime:
     # -- the conversation ---------------------------------------------------------
 
     def _converse(self, program: VoiceProgram, scenario: Scenario, seed: int) -> Conversation:
+        self.population_tools = dict((scenario.metadata.get("_protocol") or {}).get("tool_results") or {})
         cfg = program.config
         caller_model = self.caller_model or cfg.model
         judge_model = self.judge_model or caller_model
